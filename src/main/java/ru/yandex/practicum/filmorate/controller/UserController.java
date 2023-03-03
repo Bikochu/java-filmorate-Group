@@ -17,7 +17,7 @@ public class UserController {
 
     private List<User> users = new ArrayList<>();
 
-    @RequestMapping(path = "/add", method = RequestMethod.POST)
+    @RequestMapping(method = RequestMethod.POST)
     public void addUser(@Valid @RequestBody User user) {
         if (UserValidator.validateUser(user)) {
             users.add(user);
@@ -25,7 +25,7 @@ public class UserController {
         }
     }
 
-    @RequestMapping(path = "/update", method = RequestMethod.PUT)
+    @RequestMapping(method = RequestMethod.PUT)
     public void updateUser(@Valid @RequestBody User user) {
         for (int i = 0; i < users.size(); i++) {
             if (users.get(i).getId() == user.getId()) {
@@ -35,7 +35,7 @@ public class UserController {
         }
     }
 
-    @RequestMapping(path = "/delete", method = RequestMethod.DELETE)
+    @RequestMapping(method = RequestMethod.DELETE)
     public void deleteUser(@PathVariable int userId) {
         for (int i = 0; i < users.size(); i++) {
             if (users.get(i).getId() == userId) {
