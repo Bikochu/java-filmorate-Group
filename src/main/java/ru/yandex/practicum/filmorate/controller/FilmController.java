@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/film")
+@RequestMapping("/films")
 public class FilmController {
     private final static Logger log = LoggerFactory.getLogger(FilmController.class);
 
