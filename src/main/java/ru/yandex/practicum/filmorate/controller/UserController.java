@@ -35,12 +35,9 @@ public class UserController {
         }
     }
 
-    @RequestMapping(method = RequestMethod.DELETE)
-    public void deleteUser(@PathVariable int userId) {
-        for (int i = 0; i < users.size(); i++) {
-            if (users.get(i).getId() == userId) {
-                users.remove(i);
-            }
-        }
+    @RequestMapping(method = RequestMethod.GET)
+    public List<User> getAllUsers() {
+        return users;
     }
 }
+

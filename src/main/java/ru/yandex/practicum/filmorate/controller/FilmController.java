@@ -17,7 +17,7 @@ public class FilmController {
 
     private List<Film> films = new ArrayList<>();
 
-    @RequestMapping (method = RequestMethod.POST)
+    @RequestMapping(method = RequestMethod.POST)
     public void addFilm(@Valid @RequestBody Film film) {
         if (FilmValidator.validateFilm(film)) {
             films.add(film);
@@ -35,12 +35,9 @@ public class FilmController {
         }
     }
 
-    @RequestMapping(method = RequestMethod.DELETE)
-    public void deleteFilm(@PathVariable int filmId) {
-        for (int i = 0; i < films.size(); i++) {
-            if (films.get(i).getId() == filmId) {
-                films.remove(i);
-            }
-        }
+    @RequestMapping(method = RequestMethod.GET)
+    public List<Film> getAllFilms() {
+        return films;
     }
 }
+
