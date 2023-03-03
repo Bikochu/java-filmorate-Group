@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +18,7 @@ public class UserController {
     private List<User> users = new ArrayList<>();
 
     @RequestMapping(path = "/add", method = RequestMethod.POST)
-    public void addUser(@RequestBody User user) {
+    public void addUser(@Valid @RequestBody User user) {
         if (UserValidator.validateUser(user)) {
             users.add(user);
             log.info("Пользователь " + user.getName() + " добавлен");
@@ -25,7 +26,7 @@ public class UserController {
     }
 
     @RequestMapping(path = "/update", method = RequestMethod.PUT)
-    public void updateUser(@RequestBody User user) {
+    public void updateUser(@Valid @RequestBody User user) {
         for (int i = 0; i < users.size(); i++) {
             if (users.get(i).getId() == user.getId()) {
                 users.add(i, user);

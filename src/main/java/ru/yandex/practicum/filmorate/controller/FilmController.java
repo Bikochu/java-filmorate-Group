@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +18,7 @@ public class FilmController {
     private List<Film> films = new ArrayList<>();
 
     @RequestMapping(path = "/add", method = RequestMethod.POST)
-    public void addFilm(@RequestBody Film film) {
+    public void addFilm(@Valid @RequestBody Film film) {
         if (FilmValidator.validateFilm(film)) {
             films.add(film);
             log.info("Фильм " + film.getName() + " добавлен");
@@ -25,7 +26,7 @@ public class FilmController {
     }
 
     @RequestMapping(path = "/update", method = RequestMethod.PUT)
-    public void updateFilm(@RequestBody Film film) {
+    public void updateFilm(@Valid @RequestBody Film film) {
         for (int i = 0; i < films.size(); i++) {
             if (films.get(i).getId() == film.getId()) {
                 films.add(i, film);
