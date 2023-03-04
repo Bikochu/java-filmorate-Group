@@ -15,7 +15,7 @@ import java.util.List;
 @RequestMapping("/users")
 public class UserController {
     private final static Logger log = LoggerFactory.getLogger(UserController.class);
-    private static int id = 0;
+    private static int id = 1;
     private List<User> users = new ArrayList<>();
 
     @RequestMapping(method = RequestMethod.POST)
