@@ -8,7 +8,9 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.validator.FilmValidator;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -38,8 +40,8 @@ public class FilmController {
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    public Map<Integer, Film> getAllFilms() {
-        return films;
+    public List<Film> getAllFilms() {
+        return new ArrayList<>(films.values());
     }
 }
 
