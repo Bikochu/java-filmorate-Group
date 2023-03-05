@@ -8,44 +8,37 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.validator.UserValidator;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
     private final static Logger log = LoggerFactory.getLogger(UserController.class);
-    private static int id = 1;
-    private List<User> users = new ArrayList<>();
+    private static int id = 0;
+    private final Map<Integer, User> users = new HashMap();
 
     @RequestMapping(method = RequestMethod.POST)
     public User addUser(@Valid @RequestBody User user) {
         UserValidator.validateUser(user);
-        user.setId(id++);
-        users.add(user);
+        user.setId(++id);
+        users.put(id, user);
         log.info("Пользователь " + user.getName() + " добавлен");
         return user;
     }
 
     @RequestMapping(method = RequestMethod.PUT)
     public User updateUser(@Valid @RequestBody User user) {
-        boolean checkUser = users.stream().anyMatch(user1 -> user1.getId() == user.getId());
-        if (checkUser) {
-            for (int i = 0; i < users.size(); i++) {
-                if (users.get(i).getId() == user.getId()) {
-                    users.set(i, user);
-                    log.info("Пользователь " + user.getName() + " обновлен");
-                    continue;
-                }
-            }
-        } else {
-            throw new ValidationException("Пользователь с " + user.getId() + " не найден");
+        if (!users.containsKey(user.getId())) {
+            throw new ValidationException("Пользователь с Id" + user.getId() + " не найден");
         }
+        users.put(user.getId(), user);
+        log.info("Пользователь " + user.getName() + " обновлен");
         return user;
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    public List<User> getAllUsers() {
+    public Map<Integer, User> getAllUsers() {
         return users;
     }
 }

@@ -63,4 +63,28 @@ class FilmValidatorTest {
         Film film = new Film(1, "blablacar", "ужасы", LocalDate.of(2022, 12, 28), 1);
         assertDoesNotThrow(() -> FilmValidator.validateFilm(film));
     }
+
+    @Test
+    void shouldNotValidateNameNull() {
+        Film film = new Film(1, null, "ужасы", LocalDate.of(2022, 12, 28), 1);
+        assertThrows(ValidationException.class, () -> FilmValidator.validateFilm(film));
+    }
+
+    @Test
+    void shouldNotValidateDescriptionNull() {
+        Film film = new Film(1, "bla", null, LocalDate.of(2022, 12, 28), 1);
+        assertThrows(ValidationException.class, () -> FilmValidator.validateFilm(film));
+    }
+
+    @Test
+    void shouldNotValidateReleaseDateNull() {
+        Film film = new Film(1, "bla", "ужасы", null, 1);
+        assertThrows(ValidationException.class, () -> FilmValidator.validateFilm(film));
+    }
+
+    @Test
+    void shouldNotValidatePassedToMethodNull() {
+        Film film = new Film(1, "bla", "ужасы", LocalDate.of(2022, 12, 28), 1);
+        assertThrows(ValidationException.class, () -> FilmValidator.validateFilm(null));
+    }
 }
