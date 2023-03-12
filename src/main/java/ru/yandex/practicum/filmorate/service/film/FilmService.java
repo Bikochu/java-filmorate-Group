@@ -74,10 +74,11 @@ public class FilmService {
         if (count == null) {
             count = 10;
         }
-        allFilms.stream()
+        List<Film> sortedFilms = allFilms.stream()
                 .filter(f -> f.getLikes() != null)
-                .sorted((a,b) -> a.getLikes().size() - b.getLikes().size());
-        return allFilms.stream().limit(count).collect(Collectors.toList());
+                .sorted((a,b) -> a.getLikes().size() - b.getLikes().size())
+                .collect(Collectors.toList());
+        return sortedFilms.stream().limit(count).collect(Collectors.toList());
     }
 }
 
