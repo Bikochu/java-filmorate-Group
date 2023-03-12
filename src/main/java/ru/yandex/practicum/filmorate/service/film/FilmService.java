@@ -72,13 +72,14 @@ public class FilmService {
     public List<Film> getTopFilms(Integer count) {
         List<Film> allFilms = filmStorage.getAllFilms();
         if (count == null) {
-            count = 10;
+            return allFilms.stream().limit(10).collect(Collectors.toList());
         }
-        List<Film> sortedFilms = allFilms.stream()
-                .filter(f -> f.getLikes() != null)
-                .sorted((a,b) -> a.getLikes().size() - b.getLikes().size())
+        List<Film> likedFilms = allFilms.stream()
+                .filter(f -> null != f.getLikes())
+                .filter(f -> !f.getLikes().isEmpty())
+                .sorted((a,b) -> b.getLikes().size() - a.getLikes().size())
                 .collect(Collectors.toList());
-        return sortedFilms.stream().limit(count).collect(Collectors.toList());
+        return likedFilms.stream().limit(count).collect(Collectors.toList());
     }
 }
 
