@@ -74,7 +74,9 @@ public class FilmService {
         if (count == null) {
             count = 10;
         }
-        Collections.sort(allFilms, (a, b) -> a.getLikes().size() - b.getLikes().size());
+        allFilms.stream()
+                .filter(f -> f.getLikes() != null)
+                .sorted((a,b) -> a.getLikes().size() - b.getLikes().size());
         return allFilms.stream().limit(count).collect(Collectors.toList());
     }
 }
