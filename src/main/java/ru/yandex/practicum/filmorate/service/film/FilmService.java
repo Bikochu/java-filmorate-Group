@@ -50,12 +50,8 @@ public class FilmService {
         if (film == null || user == null) {
             throw new NotFoundException("Фильм с Id " + id + " не найден или пользователь с Id " + userId + " не найден");
         }
-        if (film.getLikes() == null) {
-            film.setLikes(new HashSet<>());
-        }
         Set<Long> likes = film.getLikes();
         likes.add(userId);
-        film.setLikes(likes);
     }
 
     public void deleteLike(long id, long userId) {
@@ -71,15 +67,12 @@ public class FilmService {
 
     public List<Film> getTopFilms(Integer count) {
         List<Film> allFilms = filmStorage.getAllFilms();
-        if (count == null) {
-            return allFilms.stream().limit(10).collect(Collectors.toList());
-        }
-        List<Film> likedFilms = allFilms.stream()
+        return allFilms.stream()
                 .filter(f -> null != f.getLikes())
                 .filter(f -> !f.getLikes().isEmpty())
-                .sorted((a,b) -> b.getLikes().size() - a.getLikes().size())
+                .sorted((a, b) -> b.getLikes().size() - a.getLikes().size())
+                .limit(count)
                 .collect(Collectors.toList());
-        return likedFilms.stream().limit(count).collect(Collectors.toList());
     }
 }
 
