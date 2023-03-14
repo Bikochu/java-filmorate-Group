@@ -14,8 +14,10 @@ import java.util.stream.Collectors;
 
 @Service
 public class FilmService {
-    FilmStorage filmStorage;
-    UserStorage userStorage;
+    private static int FIRST_TEN_FILMS = 10;
+
+    private FilmStorage filmStorage;
+    private UserStorage userStorage;
 
     @Autowired
     public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
@@ -67,6 +69,9 @@ public class FilmService {
 
     public List<Film> getTopFilms(Integer count) {
         List<Film> allFilms = filmStorage.getAllFilms();
+        if (count == FIRST_TEN_FILMS) {
+            return allFilms.stream().limit(FIRST_TEN_FILMS).collect(Collectors.toList());
+        }
         return allFilms.stream()
                 .filter(f -> null != f.getLikes())
                 .filter(f -> !f.getLikes().isEmpty())
