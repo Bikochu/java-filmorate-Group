@@ -21,10 +21,7 @@ import java.util.stream.Collectors;
 
 @Component
 public class UserDbStorage implements UserStorage {
-
-    private final static Logger log = LoggerFactory.getLogger(FilmDbStorage.class);
     private final JdbcTemplate jdbcTemplate;
-
     private static long id = 1;
 
     @Autowired

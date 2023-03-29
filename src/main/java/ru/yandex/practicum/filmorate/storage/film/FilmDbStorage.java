@@ -23,7 +23,6 @@ import java.util.Set;
 
 @Component("filmDbStorage")
 public class FilmDbStorage implements FilmStorage {
-    private final static Logger log = LoggerFactory.getLogger(FilmDbStorage.class);
     private final JdbcTemplate jdbcTemplate;
     private static long id = 1;
 
