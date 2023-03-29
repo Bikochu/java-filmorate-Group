@@ -1,9 +1,12 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.service.film.FilmService;
+import ru.yandex.practicum.filmorate.integration.mpa.MpaService;
 
 import java.util.List;
 
@@ -11,21 +14,20 @@ import java.util.List;
 @RequestMapping("/mpa")
 public class MpaController {
 
-    private FilmService filmService;
+    private final MpaService mpaService;
 
     @Autowired
-    public MpaController(FilmService filmService) {
-        this.filmService = filmService;
+    public MpaController(MpaService mpaService) {
+        this.mpaService = mpaService;
     }
-
 
     @GetMapping("/{id}")
     public Mpa getMpaById(@PathVariable int id) {
-        return filmService.getMpaById(id);
+        return mpaService.getMpaById(id);
     }
 
     @GetMapping
     public List<Mpa> getAllMpa() {
-        return filmService.getAllMpa();
+        return mpaService.getAllMpa();
     }
 }

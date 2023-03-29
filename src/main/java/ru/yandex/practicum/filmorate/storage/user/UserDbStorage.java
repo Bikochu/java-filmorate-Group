@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 @Component
 public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
-    private static long id = 1;
 
     @Autowired
     public UserDbStorage(JdbcTemplate jdbcTemplate) {
@@ -28,19 +27,17 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User addUser(User user) {
-        String sqlQuery = "insert into users(user_id, email, login, user_name, birthday) values (?, ?, ?, ?, ?)";
+        String sqlQuery = "insert into users(email, login, user_name, birthday) values (?, ?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
             PreparedStatement stmt = connection.prepareStatement(sqlQuery, new String[]{"user_id"});
-            stmt.setLong(1, id);
-            stmt.setString(2, user.getEmail());
-            stmt.setString(3, user.getLogin());
-            stmt.setString(4, user.getName());
-            stmt.setDate(5, Date.valueOf(user.getBirthday()));
+            stmt.setString(1, user.getEmail());
+            stmt.setString(2, user.getLogin());
+            stmt.setString(3, user.getName());
+            stmt.setDate(4, Date.valueOf(user.getBirthday()));
             return stmt;
         }, keyHolder);
-        user.setId(id);
-        id = keyHolder.getKey().longValue() + 1;
+        user.setId(keyHolder.getKey().longValue());
         return user;
     }
 
@@ -78,7 +75,7 @@ public class UserDbStorage implements UserStorage {
                     "from users where user_id = ?";
             User user = jdbcTemplate.queryForObject(sqlQuery, this::mapRowToUser, id);
             List<User> friends = getListFriendsUser(id);
-            user.getFriends().addAll(friends.stream().map(u -> u.getId()).collect(Collectors.toSet()));
+            user.getFriends().addAll(friends.stream().map(User::getId).collect(Collectors.toSet()));
             return user;
         } catch (EmptyResultDataAccessException e) {
             throw new NotFoundException("Пользователь с Id " + id + " не найден");
@@ -89,9 +86,9 @@ public class UserDbStorage implements UserStorage {
     public List<User> getAllUsers() {
         String sqlQuery = "select user_id, email, login, user_name, birthday from users";
         List<User> users = jdbcTemplate.query(sqlQuery, this::mapRowToUser);
-        users.stream().forEach(user -> {
+        users.forEach(user -> {
             List<User> friends = getListFriendsUser(user.getId());
-            user.getFriends().addAll(friends.stream().map(u -> u.getId()).collect(Collectors.toSet()));
+            user.getFriends().addAll(friends.stream().map(User::getId).collect(Collectors.toSet()));
         });
         return users;
     }
@@ -134,13 +131,12 @@ public class UserDbStorage implements UserStorage {
     }
 
     private User mapRowToUser(ResultSet resultSet, int rowNum) throws SQLException {
-        User user = User.builder()
+        return User.builder()
                 .id(resultSet.getLong("user_id"))
                 .email(resultSet.getString("email"))
                 .login(resultSet.getString("login"))
                 .name(resultSet.getString("user_name"))
                 .birthday(resultSet.getDate("birthday").toLocalDate())
                 .build();
-        return user;
     }
 }

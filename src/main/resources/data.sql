@@ -1,21 +1,21 @@
-INSERT INTO RATING VALUES (1, 'G');
-INSERT INTO RATING VALUES (2, 'PG');
-INSERT INTO RATING VALUES (3, 'PG-13');
-INSERT INTO RATING VALUES (4, 'R');
-INSERT INTO RATING VALUES (5, 'NC-17');
+INSERT INTO RATING (RATING_NAME) VALUES ('G');
+INSERT INTO RATING (RATING_NAME) VALUES ('PG');
+INSERT INTO RATING (RATING_NAME) VALUES ('PG-13');
+INSERT INTO RATING (RATING_NAME) VALUES ('R');
+INSERT INTO RATING (RATING_NAME) VALUES ('NC-17');
 
--- INSERT INTO FILM VALUES (1, 'Гарри Поттер 1', 'Про мальчика волшебника Гарри', '2002-03-21', 150, 1);
--- INSERT INTO FILM VALUES (2, 'Гарри Поттер 2', 'Про мальчика волшебника Гарри', '2002-11-03', 150, 2);
--- INSERT INTO FILM VALUES (3, 'Гарри Поттер 3', 'Про мальчика волшебника Гарри', '2004-05-31', 150, 2);
--- INSERT INTO FILM VALUES (4, 'Гарри Поттер 4', 'Про мальчика волшебника Гарри', '2005-12-22', 150, 2);
--- INSERT INTO FILM VALUES (5, 'Гарри Поттер 5', 'Про мальчика волшебника Гарри', '2008-06-28', 150, 2);
+-- INSERT INTO FILM(FILM_NAME, DESCRIPTION, RELEASE_DATE, DURATION) VALUES ('Гарри Поттер 1', 'Про мальчика волшебника Гарри', '2002-03-21', 150);
+-- INSERT INTO FILM(FILM_NAME, DESCRIPTION, RELEASE_DATE, DURATION) VALUES (2, 'Гарри Поттер 2', 'Про мальчика волшебника Гарри', '2002-11-03', 150);
+-- INSERT INTO FILM(FILM_NAME, DESCRIPTION, RELEASE_DATE, DURATION) VALUES (3, 'Гарри Поттер 3', 'Про мальчика волшебника Гарри', '2004-05-31', 150);
+-- INSERT INTO FILM(FILM_NAME, DESCRIPTION, RELEASE_DATE, DURATION) VALUES (4, 'Гарри Поттер 4', 'Про мальчика волшебника Гарри', '2005-12-22', 150);
+-- INSERT INTO FILM(FILM_NAME, DESCRIPTION, RELEASE_DATE, DURATION) VALUES (5, 'Гарри Поттер 5', 'Про мальчика волшебника Гарри', '2008-06-28', 150);
 --
-INSERT INTO GENRE VALUES (1, 'Комедия');
-INSERT INTO GENRE VALUES (2, 'Драма');
-INSERT INTO GENRE VALUES (3, 'Мультфильм');
-INSERT INTO GENRE VALUES (4, 'Триллер');
-INSERT INTO GENRE VALUES (5, 'Документальный');
-INSERT INTO GENRE VALUES (6, 'Боевик');
+INSERT INTO GENRE (GENRE_NAME) VALUES ('Комедия');
+INSERT INTO GENRE (GENRE_NAME) VALUES ('Драма');
+INSERT INTO GENRE (GENRE_NAME) VALUES ('Мультфильм');
+INSERT INTO GENRE (GENRE_NAME) VALUES ('Триллер');
+INSERT INTO GENRE (GENRE_NAME) VALUES ('Документальный');
+INSERT INTO GENRE (GENRE_NAME) VALUES ('Боевик');
 --
 -- INSERT INTO FILM_GENRE VALUES (1, 1);
 -- INSERT INTO FILM_GENRE VALUES (2, 1);

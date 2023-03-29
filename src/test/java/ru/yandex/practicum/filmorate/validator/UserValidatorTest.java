@@ -12,49 +12,49 @@ class UserValidatorTest {
 
     @Test
     void shouldNotValidateEmptyEmail() {
-        User user = new User(1, "", "goshan", "Григорий Петров", LocalDate.of(2000, 05,25));
+        User user = new User(1, "", "goshan", "Григорий Петров", LocalDate.of(2000, 05, 25));
         assertThrows(ValidationException.class, () -> UserValidator.validateUser(user));
     }
 
     @Test
     void shouldNotValidateEmailNotContainDogSymbol() {
-        User user = new User(1, "goshamail.ru", "goshan", "Григорий Петров", LocalDate.of(2000, 05,25));
+        User user = new User(1, "goshamail.ru", "goshan", "Григорий Петров", LocalDate.of(2000, 05, 25));
         assertThrows(ValidationException.class, () -> UserValidator.validateUser(user));
     }
 
     @Test
     void shouldValidateEmail() {
-        User user = new User(1, "gosha@mail.ru", "goshan", "Григорий Петров", LocalDate.of(2000, 05,25));
+        User user = new User(1, "gosha@mail.ru", "goshan", "Григорий Петров", LocalDate.of(2000, 05, 25));
         assertDoesNotThrow(() -> UserValidator.validateUser(user));
     }
 
     @Test
     void shouldNotValidateEmptyLogin() {
-        User user = new User(1, "gosha@mail.ru", "", "Григорий Петров", LocalDate.of(2000, 05,25));
+        User user = new User(1, "gosha@mail.ru", "", "Григорий Петров", LocalDate.of(2000, 05, 25));
         assertThrows(ValidationException.class, () -> UserValidator.validateUser(user));
     }
 
     @Test
     void shouldNotValidateLoginWithWhitespace() {
-        User user = new User(1, "goshamail.ru", "go shan", "Григорий Петров", LocalDate.of(2000, 05,25));
+        User user = new User(1, "goshamail.ru", "go shan", "Григорий Петров", LocalDate.of(2000, 05, 25));
         assertThrows(ValidationException.class, () -> UserValidator.validateUser(user));
     }
 
     @Test
     void shouldValidateLogin() {
-        User user = new User(1, "gosha@mail.ru", "goshan", "Григорий Петров", LocalDate.of(2000, 05,25));
+        User user = new User(1, "gosha@mail.ru", "goshan", "Григорий Петров", LocalDate.of(2000, 05, 25));
         assertDoesNotThrow(() -> UserValidator.validateUser(user));
     }
 
     @Test
     void shouldValidateEmptyName() {
-        User user = new User(1, "gosha@mail.ru", "goshan", "", LocalDate.of(2000, 05,25));
+        User user = new User(1, "gosha@mail.ru", "goshan", "", LocalDate.of(2000, 05, 25));
         assertDoesNotThrow(() -> UserValidator.validateUser(user));
     }
 
     @Test
     void shouldNotValidateBirthdayInFuture() {
-        User user = new User(1, "gosha@mail.ru", "", "Григорий Петров", LocalDate.of(2035, 05,25));
+        User user = new User(1, "gosha@mail.ru", "", "Григорий Петров", LocalDate.of(2035, 05, 25));
         assertThrows(ValidationException.class, () -> UserValidator.validateUser(user));
     }
 
@@ -66,25 +66,25 @@ class UserValidatorTest {
 
     @Test
     void shouldValidateBirthdayInPast() {
-        User user = new User(1, "gosha@mail.ru", "goshan", "Григорий Петров", LocalDate.of(2000, 05,25));
+        User user = new User(1, "gosha@mail.ru", "goshan", "Григорий Петров", LocalDate.of(2000, 05, 25));
         assertDoesNotThrow(() -> UserValidator.validateUser(user));
     }
 
     @Test
     void shouldNotValidateNameNull() {
-        User user = new User(1, "gosha@mail.ru", "goshan", null, LocalDate.of(2000, 05,25));
+        User user = new User(1, "gosha@mail.ru", "goshan", null, LocalDate.of(2000, 05, 25));
         assertDoesNotThrow(() -> UserValidator.validateUser(user));
     }
 
     @Test
     void shouldNotValidateEmailNull() {
-        User user = new User(1, null, "goshan", "Григорий Петров", LocalDate.of(2000, 05,25));
+        User user = new User(1, null, "goshan", "Григорий Петров", LocalDate.of(2000, 05, 25));
         assertThrows(ValidationException.class, () -> UserValidator.validateUser(user));
     }
 
     @Test
     void shouldNotValidateLoginNull() {
-        User user = new User(1, "gosha@mail.ru", null, "Григорий Петров", LocalDate.of(2000, 05,25));
+        User user = new User(1, "gosha@mail.ru", null, "Григорий Петров", LocalDate.of(2000, 05, 25));
         assertThrows(ValidationException.class, () -> UserValidator.validateUser(user));
     }
 
@@ -96,7 +96,7 @@ class UserValidatorTest {
 
     @Test
     void shouldNotValidatePassedToMethodNull() {
-        User user = new User(1, "gosha@mail.ru", "goshan", "Григорий Петров", LocalDate.of(2000, 05,25));
+        User user = new User(1, "gosha@mail.ru", "goshan", "Григорий Петров", LocalDate.of(2000, 05, 25));
         assertThrows(ValidationException.class, () -> UserValidator.validateUser(null));
     }
 }
