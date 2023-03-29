@@ -57,12 +57,12 @@ public class FilmDbStorage implements FilmStorage {
     public Film updateFilm(Film film) {
         String sqlQuery = "update film set film_name = ?, description = ?," +
                 " release_date = ?, duration = ? where film_id = ?";
-        int upd = jdbcTemplate.update(sqlQuery
-                , film.getName()
-                , film.getDescription()
-                , film.getReleaseDate()
-                , film.getDuration()
-                , film.getId());
+        int upd = jdbcTemplate.update(sqlQuery,
+                film.getName(),
+                film.getDescription(),
+                film.getReleaseDate(),
+                film.getDuration(),
+                film.getId());
         if (upd == 0) {
             throw new NotFoundException("Фильм с Id " + film.getId() + " не найден");
         }
@@ -193,9 +193,9 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Genre updateGenre(Genre genre) {
         String sqlQuery = "update genre set genre_name = ? where genre_id = ?";
-        int upd = jdbcTemplate.update(sqlQuery
-                , genre.getName()
-                , genre.getId());
+        int upd = jdbcTemplate.update(sqlQuery,
+                genre.getName(),
+                genre.getId());
         if (upd == 0) {
             throw new NotFoundException("Фильм с Id " + genre.getId() + " не найден");
         }
