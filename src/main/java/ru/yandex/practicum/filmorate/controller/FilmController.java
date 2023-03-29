@@ -30,8 +30,8 @@ public class FilmController {
     }
 
     @RequestMapping(method = RequestMethod.DELETE)
-    public void deleteFilmById(@Valid @RequestBody long id) {
-        filmService.deleteFilmById(id);
+    public void deleteFilmById(@Valid @RequestBody Film id) {
+        filmService.deleteFilmById(id.getId());
     }
 
     @GetMapping("/{id}")

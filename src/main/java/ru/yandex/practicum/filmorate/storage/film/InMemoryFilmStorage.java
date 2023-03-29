@@ -5,6 +5,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,5 +56,55 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public List<Film> getAllFilms() {
         return new ArrayList<>(films.values());
+    }
+
+    @Override
+    public List<Film> getFilmsByCount(int count) {
+        return null;
+    }
+
+    @Override
+    public void addLike(long id, long userId) {
+
+    }
+
+    @Override
+    public void deleteLike(long id, long userId) {
+
+    }
+
+    @Override
+    public List<Film> getTopFilms(Integer count) {
+        return null;
+    }
+
+    @Override
+    public Genre getGenre(int genreId) {
+        return null;
+    }
+
+    @Override
+    public Mpa getMpaById(int mpaId) {
+        return null;
+    }
+
+    @Override
+    public List<Mpa> getAllMpa() {
+        return null;
+    }
+
+    @Override
+    public Genre getGenreById(int genreId) {
+        return null;
+    }
+
+    @Override
+    public List<Genre> getAllGenres() {
+        return null;
+    }
+
+    @Override
+    public Genre updateGenre(Genre genre) {
+        return null;
     }
 }
