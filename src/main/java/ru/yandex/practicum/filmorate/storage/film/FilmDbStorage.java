@@ -79,6 +79,7 @@ public class FilmDbStorage implements FilmStorage {
     public void deleteFilmById(long id) {
         deleteGenresToFilm(id);
         deleteRatingToFilm(id);
+        deleteLikeByFilmId(id);
         String sqlQuery = "delete from film where film_id = ?";
         jdbcTemplate.update(sqlQuery, id);
     }
@@ -154,6 +155,11 @@ public class FilmDbStorage implements FilmStorage {
                 .duration(resultSet.getInt("duration"))
                 .build();
         return film;
+    }
+
+    private void deleteLikeByFilmId(long id) {
+        String sqlQuery = "delete from likes where film_id = ?";
+        jdbcTemplate.update(sqlQuery, id);
     }
 
     private void addGenresToFilm(long filmId, int genreId) {
