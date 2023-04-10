@@ -14,7 +14,7 @@ import java.util.Map;
 
 @Component
 public class InMemoryUserStorage implements UserStorage {
-    private final static Logger log = LoggerFactory.getLogger(InMemoryUserStorage.class);
+    private static final Logger log = LoggerFactory.getLogger(InMemoryUserStorage.class);
     private static long id = 0;
     private final Map<Long, User> users = new HashMap();
 
@@ -56,5 +56,20 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public List<User> getAllUsers() {
         return new ArrayList<>(users.values());
+    }
+
+    @Override
+    public void addFriend(long id, long friendId) {
+
+    }
+
+    @Override
+    public void deleteFriend(long id, long friendId) {
+
+    }
+
+    @Override
+    public List<User> getListFriendsUser(long id) {
+        return null;
     }
 }

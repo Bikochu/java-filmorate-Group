@@ -13,7 +13,7 @@ import java.util.Map;
 
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
-    private final static Logger log = LoggerFactory.getLogger(InMemoryFilmStorage.class);
+    private static final Logger log = LoggerFactory.getLogger(InMemoryFilmStorage.class);
     private static long id = 0;
     private final Map<Long, Film> films = new HashMap();
 
@@ -54,5 +54,25 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public List<Film> getAllFilms() {
         return new ArrayList<>(films.values());
+    }
+
+    @Override
+    public List<Film> getFilmsByCount(int count) {
+        return null;
+    }
+
+    @Override
+    public void addLike(long id, long userId) {
+
+    }
+
+    @Override
+    public void deleteLike(long id, long userId) {
+
+    }
+
+    @Override
+    public List<Film> getTopFilms(Integer count) {
+        return null;
     }
 }
