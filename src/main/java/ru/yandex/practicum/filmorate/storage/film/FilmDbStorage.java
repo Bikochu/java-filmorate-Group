@@ -35,8 +35,8 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film addFilm(Film film) {
-        String sqlQuery = "insert into film(film_name, description, release_date, duration) " +
-                "values (?, ?, ?, ?)";
+        String sqlQuery = "insert into film(film_name, description, release_date, duration, rate) " +
+                "values (?, ?, ?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
             PreparedStatement stmt = connection.prepareStatement(sqlQuery, new String[]{"film_id"});
@@ -44,23 +44,25 @@ public class FilmDbStorage implements FilmStorage {
             stmt.setString(2, film.getDescription());
             stmt.setDate(3, Date.valueOf(film.getReleaseDate()));
             stmt.setInt(4, film.getDuration());
+            stmt.setInt(5, film.getRate());
             return stmt;
         }, keyHolder);
         film.setId(keyHolder.getKey().longValue());
         addRatingToFilm(film.getId(), film.getMpa().getId());
-        film.getGenres().stream().forEach(g -> addGenresToFilm(film.getId(), g.getId()));
+        film.getGenres().forEach(g -> addGenresToFilm(film.getId(), g.getId()));
         return film;
     }
 
     @Override
     public Film updateFilm(Film film) {
-        String sqlQuery = "update film set film_name = ?, description = ?," +
-                " release_date = ?, duration = ? where film_id = ?";
+        String sqlQuery = "UPDATE FILM set film_name = ?, description = ?," +
+                " release_date = ?, duration = ?, rate = ? WHERE film_id = ?";
         int upd = jdbcTemplate.update(sqlQuery,
                 film.getName(),
                 film.getDescription(),
                 film.getReleaseDate(),
                 film.getDuration(),
+                film.getRate(),
                 film.getId());
         if (upd == 0) {
             throw new NotFoundException("Фильм с Id " + film.getId() + " не найден");
@@ -68,7 +70,7 @@ public class FilmDbStorage implements FilmStorage {
         deleteGenresToFilm(film.getId());
         deleteRatingToFilm(film.getId());
         Set<Genre> genres = new LinkedHashSet<>(film.getGenres());
-        genres.stream().forEach(g -> addGenresToFilm(film.getId(), g.getId()));
+        genres.forEach(g -> addGenresToFilm(film.getId(), g.getId()));
         addRatingToFilm(film.getId(), film.getMpa().getId());
         film.getGenres().clear();
         film.getGenres().addAll(genres);
@@ -90,8 +92,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Film findFilmById(long id) {
         try {
-            String sqlQuery = "select film_id, film_name, description, release_date, duration " +
-                    "from film where film_id = ?";
+            String sqlQuery = "SELECT film_id, film_name, description, release_date, duration, rate FROM FILM where film_id = ?";
             Film film = jdbcTemplate.queryForObject(sqlQuery, this::mapRowToFilm, id);
             addGenresToFilm(Collections.singletonList(film));
             addRatingToFilm(Collections.singletonList(film));
@@ -103,7 +104,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getAllFilms() {
-        String sqlQuery = "select film_id, film_name, description, release_date, duration from film";
+        String sqlQuery = "select film_id, film_name, description, release_date, duration, rate from film";
         List<Film> films = jdbcTemplate.query(sqlQuery, this::mapRowToFilm);
         addGenresToFilm(films);
         addRatingToFilm(films);
@@ -112,7 +113,9 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getFilmsByCount(int count) {
-        String sqlQuery = "select film_id, film_name, description, release_date, duration from film limit ?";
+        String sqlQuery = "SELECT film_id, film_name, description, release_date, duration, rate " +
+                "FROM film " +
+                "LIMIT ?";
         List<Film> films = jdbcTemplate.query(sqlQuery, this::mapRowToFilm, count);
         addGenresToFilm(films);
         addRatingToFilm(films);
@@ -122,27 +125,37 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public void addLike(long id, long userId) {
         String checkQuery = "select count(film_id) from likes where film_id = ? and user_id = ?";
-        int check = jdbcTemplate.queryForObject(checkQuery, new Object[]{id, userId}, Integer.class);
-        if (check > 0) {
+        Integer count = jdbcTemplate.queryForObject(checkQuery, Integer.class, id, userId);
+        if (count != null && count > 0) {
             return;
         }
-        String sqlQuery = "insert into likes(film_id, user_id) " +
-                "values (?, ?)";
-        jdbcTemplate.update(sqlQuery,
-                id,
-                userId);
+        String sqlQuery = "INSERT INTO Likes(film_id, user_id) values (?, ?)";
+        jdbcTemplate.update(sqlQuery, id, userId);
+        String sqlRate = "UPDATE Film SET rate=rate+1 WHERE film_id=?";
+        jdbcTemplate.update(sqlRate, id);
     }
 
     @Override
     public void deleteLike(long id, long userId) {
-        String sqlQuery = "delete from likes where film_id = ? and user_id = ?";
-        jdbcTemplate.update(sqlQuery, id, userId);
+        String sqlQuery = "DELETE FROM Likes WHERE film_id = ? and user_id = ?";
+        int del = jdbcTemplate.update(sqlQuery, id, userId);
+        if (del <= 0) {
+            return;
+        }
+        String sqlRate = "UPDATE Film SET rate=rate-1 WHERE film_id=?";
+        jdbcTemplate.update(sqlRate, id);
     }
 
     @Override
     public List<Film> getTopFilms(Integer count) {
-        String sqlQuery = "select film_id, film_name, description, release_date, duration from FILM where FILM_ID in " +
-                "(select film_id from LIKES group by FILM_ID order by count(USER_ID) desc) limit ?";
+        String sqlQuery = "SELECT film_id, film_name, description, release_date, duration, rate " +
+                "FROM FILM " +
+                "WHERE FILM_ID in " +
+                "(SELECT film_id " +
+                "FROM LIKES " +
+                "GROUP BY FILM_ID " +
+                "ORDER BY count(USER_ID) DESC) " +
+                "LIMIT ?";
         List<Film> films = jdbcTemplate.query(sqlQuery, this::mapRowToFilm, count);
         addGenresToFilm(films);
         addRatingToFilm(films);
@@ -150,14 +163,14 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private Film mapRowToFilm(ResultSet resultSet, int rowNum) throws SQLException {
-        Film film = Film.builder()
+        return Film.builder()
                 .id(resultSet.getLong("film_id"))
                 .name(resultSet.getString("film_name"))
                 .description(resultSet.getString("description"))
                 .releaseDate(resultSet.getDate("release_date").toLocalDate())
                 .duration(resultSet.getInt("duration"))
+                .rate(resultSet.getInt("rate"))
                 .build();
-        return film;
     }
 
     private void deleteLikeByFilmId(long id) {
@@ -200,7 +213,7 @@ public class FilmDbStorage implements FilmStorage {
     private void addGenresToFilm(List<Film> films) {
         List<Long> filmIds = films.stream().map(Film::getId).collect(Collectors.toList());
         Map<Long, List<Genre>> filmToGenresMap = getGenresToFilms(filmIds);
-        films.stream().forEach(f -> f.getGenres().addAll(filmToGenresMap.getOrDefault(f.getId(),
+        films.forEach(f -> f.getGenres().addAll(filmToGenresMap.getOrDefault(f.getId(),
                 Collections.emptyList())));
     }
 
@@ -232,7 +245,7 @@ public class FilmDbStorage implements FilmStorage {
     public void addRatingToFilm(List<Film> films) {
         List<Long> filmIds = films.stream().map(Film::getId).collect(Collectors.toList());
         Map<Long, Mpa> filmToRatingMap = getRatingToFilms(filmIds);
-        films.stream().forEach(f -> f.setMpa(filmToRatingMap.getOrDefault(f.getId(), null)));
+        films.forEach(f -> f.setMpa(filmToRatingMap.getOrDefault(f.getId(), null)));
     }
 
     private Map<Long, Mpa> getRatingToFilms(List<Long> filmIds) {
@@ -274,4 +287,22 @@ public class FilmDbStorage implements FilmStorage {
         private int ratingId;
         private String ratingName;
     }
+
+    @Override
+    public List<Film> getCommonFilms(long userId, long friendId) {
+        String sql = "SELECT FILM_ID " +
+                "FROM LIKES " +
+                "WHERE USER_ID = ? " +
+                    "INTERSECT SELECT FILM_ID " +
+                    "FROM LIKES " +
+                    "WHERE USER_ID = ?";
+        List<Integer> listOfCommonFilms = jdbcTemplate.queryForList(sql, new Object[]{userId, friendId}, Integer.class);
+        List<Film> listOfFilms = new ArrayList<>();
+        listOfCommonFilms.forEach(film -> listOfFilms.add(findFilmById(film)));
+        return listOfFilms.stream()
+                .sorted(Comparator.comparingInt(Film::getRate).reversed())
+                .collect(Collectors.toList());
+    }
+
+
 }
