@@ -23,4 +23,7 @@ public interface FilmStorage {
     void deleteLike(long id, long userId);
 
     List<Film> getTopFilms(Integer count);
+
+    List<Film> getCommonFilms(long userId, long friendId);
+
 }
