@@ -29,6 +29,7 @@ create table IF NOT EXISTS FILM
     DESCRIPTION  CHARACTER VARYING(200),
     RELEASE_DATE DATE,
     DURATION     INTEGER,
+    RATE         INTEGER,
     constraint "FILM_pk"
         primary key (FILM_ID)
 );
