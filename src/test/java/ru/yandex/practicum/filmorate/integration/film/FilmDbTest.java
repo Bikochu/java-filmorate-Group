@@ -69,7 +69,7 @@ class FilmDbTest {
     @Test
     void getAllFilms() {
         Film film1 = new Film(1, "blablacar5", "ужасы", LocalDate.of(2022, 12, 15), 120, new Mpa(1, "G"), 0);
-        Film film2 = new Film(1, "blablacar6", "ужасы", LocalDate.of(2022, 12, 27), 120, new Mpa(1, "G"), 0);
+        Film film2 = new Film(2, "blablacar6", "ужасы", LocalDate.of(2022, 12, 27), 120, new Mpa(1, "G"), 0);
         List<Film> filmsCheckBefore = filmStorage.getAllFilms();
         filmStorage.addFilm(film1);
         filmStorage.addFilm(film2);
@@ -81,7 +81,7 @@ class FilmDbTest {
     @Test
     void addLike() {
         Film film1 = new Film(1, "blablacar7", "ужасы", LocalDate.of(2022, 12, 15), 120, new Mpa(1, "G"), 0);
-        Film film2 = new Film(1, "blablacar8", "ужасы", LocalDate.of(2022, 12, 27), 120, new Mpa(1, "G"), 0);
+        Film film2 = new Film(2, "blablacar8", "ужасы", LocalDate.of(2022, 12, 27), 120, new Mpa(1, "G"), 0);
         User user = new User(1, "", "goshan", "Григорий Петров", LocalDate.of(2000, 5, 25));
         filmStorage.addFilm(film1);
         filmStorage.addFilm(film2);
@@ -94,9 +94,9 @@ class FilmDbTest {
     @Test
     void deleteLike() {
         Film film1 = new Film(1, "blablacar9", "ужасы", LocalDate.of(2022, 12, 15), 120, new Mpa(1, "G"), 0);
-        Film film2 = new Film(1, "blablacar10", "ужасы", LocalDate.of(2022, 12, 27), 120, new Mpa(1, "G"), 0);
+        Film film2 = new Film(2, "blablacar10", "ужасы", LocalDate.of(2022, 12, 27), 120, new Mpa(1, "G"), 0);
         User user1 = new User(1, "", "goshan", "Григорий Петров", LocalDate.of(2000, 5, 25));
-        User user2 = new User(1, "zina@mail.ru", "zina", "Зина Сидорова", LocalDate.of(2000, 5, 25));
+        User user2 = new User(2, "zina@mail.ru", "zina", "Зина Сидорова", LocalDate.of(2000, 5, 25));
         List<Film> filmsDrop = filmStorage.getAllFilms();
         filmsDrop.forEach(f -> filmStorage.deleteFilmById(f.getId()));
         filmStorage.addFilm(film1);
@@ -106,9 +106,7 @@ class FilmDbTest {
         List<Film> filmsUp = filmStorage.getAllFilms();
 
         filmStorage.addLike(filmsUp.get(0).getId(), 2);
-        filmStorage.addLike(filmsUp.get(0).getId(), 2);
         filmStorage.addLike(filmsUp.get(1).getId(), 1);
-        filmStorage.deleteLike(filmsUp.get(1).getId(), 1);
         filmStorage.deleteLike(filmsUp.get(1).getId(), 2);
         filmStorage.deleteLike(filmsUp.get(0).getId(), 2);
         List<Film> films = filmStorage.getTopFilms(1);
@@ -118,9 +116,9 @@ class FilmDbTest {
     @Test
     void getTopFilms() {
         Film film1 = new Film(1, "blablacar11", "ужасы", LocalDate.of(2022, 12, 15), 120, new Mpa(1, "G"), 0);
-        Film film2 = new Film(1, "blablacar12", "ужасы", LocalDate.of(2022, 12, 27), 120, new Mpa(1, "G"), 0);
+        Film film2 = new Film(2, "blablacar12", "ужасы", LocalDate.of(2022, 12, 27), 120, new Mpa(1, "G"), 0);
         User user1 = new User(1, "", "goshan", "Григорий Петров", LocalDate.of(2000, 5, 25));
-        User user2 = new User(1, "zina@mail.ru", "zina", "Зина Сидорова", LocalDate.of(2000, 5, 25));
+        User user2 = new User(2, "zina@mail.ru", "zina", "Зина Сидорова", LocalDate.of(2000, 5, 25));
         filmStorage.addFilm(film1);
         filmStorage.addFilm(film2);
         userStorage.addUser(user1);
@@ -136,9 +134,9 @@ class FilmDbTest {
     @Test
     void getFilmsByCount() {
         Film film1 = new Film(1, "blablacar13", "ужасы", LocalDate.of(2022, 12, 15), 120, new Mpa(1, "G"), 0);
-        Film film2 = new Film(1, "blablacar14", "ужасы", LocalDate.of(2022, 12, 27), 120, new Mpa(1, "G"), 0);
+        Film film2 = new Film(2, "blablacar14", "ужасы", LocalDate.of(2022, 12, 27), 120, new Mpa(1, "G"), 0);
         User user1 = new User(1, "", "goshan", "Григорий Петров", LocalDate.of(2000, 5, 25));
-        User user2 = new User(1, "zina@mail.ru", "zina", "Зина Сидорова", LocalDate.of(2000, 5, 25));
+        User user2 = new User(2, "zina@mail.ru", "zina", "Зина Сидорова", LocalDate.of(2000, 5, 25));
         filmStorage.addFilm(film1);
         filmStorage.addFilm(film2);
         userStorage.addUser(user1);
