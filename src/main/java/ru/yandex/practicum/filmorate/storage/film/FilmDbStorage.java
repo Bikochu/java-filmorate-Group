@@ -81,7 +81,10 @@ public class FilmDbStorage implements FilmStorage {
         deleteRatingToFilm(id);
         deleteLikeByFilmId(id);
         String sqlQuery = "delete from film where film_id = ?";
-        jdbcTemplate.update(sqlQuery, id);
+        int upd = jdbcTemplate.update(sqlQuery, id);
+        if (upd == 0) {
+            throw new NotFoundException("Фильм с Id " + id + " не найден");
+        }
     }
 
     @Override

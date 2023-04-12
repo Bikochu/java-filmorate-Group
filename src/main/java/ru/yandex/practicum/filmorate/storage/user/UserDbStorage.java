@@ -65,7 +65,10 @@ public class UserDbStorage implements UserStorage {
         String sqlQueryToUsersFriend = "delete from users_friend where user_id = ?";
         jdbcTemplate.update(sqlQueryToUsersFriend, id);
         String sqlQuery = "delete from users where user_id = ?";
-        jdbcTemplate.update(sqlQuery, id);
+        int upd = jdbcTemplate.update(sqlQuery, id);
+        if (upd == 0) {
+            throw new NotFoundException("Пользователь с Id " + id + " не найден");
+        }
     }
 
     @Override
