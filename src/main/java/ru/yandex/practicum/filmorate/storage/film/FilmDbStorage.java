@@ -157,6 +157,12 @@ public class FilmDbStorage implements FilmStorage {
                 "ORDER BY count(USER_ID) DESC) " +
                 "LIMIT ?";
         List<Film> films = jdbcTemplate.query(sqlQuery, this::mapRowToFilm, count);
+        if (films.isEmpty()) {
+            sqlQuery = "SELECT film_id, film_name, description, release_date, duration, rate " +
+                    "FROM FILM " +
+                    "LIMIT ?";
+            films = jdbcTemplate.query(sqlQuery, this::mapRowToFilm, count);
+        }
         addGenresToFilm(films);
         addRatingToFilm(films);
         return films;
