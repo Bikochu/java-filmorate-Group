@@ -9,7 +9,6 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -50,7 +49,7 @@ public class FilmDbStorage implements FilmStorage {
         }, keyHolder);
         film.setId(keyHolder.getKey().longValue());
         addRatingToFilm(film.getId(), film.getMpa().getId());
-        film.getGenres().stream().forEach(g -> addGenresToFilm(film.getId(), g.getId()));
+        film.getGenres().forEach(g -> addGenresToFilm(film.getId(), g.getId()));
         return film;
     }
 
@@ -71,7 +70,7 @@ public class FilmDbStorage implements FilmStorage {
         deleteGenresToFilm(film.getId());
         deleteRatingToFilm(film.getId());
         Set<Genre> genres = new LinkedHashSet<>(film.getGenres());
-        genres.stream().forEach(g -> addGenresToFilm(film.getId(), g.getId()));
+        genres.forEach(g -> addGenresToFilm(film.getId(), g.getId()));
         addRatingToFilm(film.getId(), film.getMpa().getId());
         film.getGenres().clear();
         film.getGenres().addAll(genres);
@@ -122,33 +121,26 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public void addLike(long id, long userId) {
-        /*String checkQuery = "select count(film_id) from likes where film_id = ? and user_id = ?";
-        int check = jdbcTemplate.queryForObject(checkQuery, new Object[]{id, userId}, Integer.class);
-        if (check > 0) {
+        String checkQuery = "select count(film_id) from likes where film_id = ? and user_id = ?";
+        Integer count = jdbcTemplate.queryForObject(checkQuery, Integer.class, id, userId);
+        if (count != null && count > 0) {
             return;
-        }*/
+        }
         String sqlQuery = "INSERT INTO Likes(film_id, user_id) values (?, ?)";
         jdbcTemplate.update(sqlQuery, id, userId);
-
-        SqlRowSet rs = jdbcTemplate.queryForRowSet("SELECT rate FROM Film WHERE film_id=?", id);
-        rs.next();
-        int rate = rs.getInt("rate");
-        rate++;
-        String sqlRate = "UPDATE Film SET rate=? WHERE film_id=?";
-        jdbcTemplate.update(sqlRate, rate, id);
+        String sqlRate = "UPDATE Film SET rate=rate+1 WHERE film_id=?";
+        jdbcTemplate.update(sqlRate, id);
     }
 
     @Override
     public void deleteLike(long id, long userId) {
         String sqlQuery = "DELETE FROM Likes WHERE film_id = ? and user_id = ?";
-        jdbcTemplate.update(sqlQuery, id, userId);
-
-        SqlRowSet rs = jdbcTemplate.queryForRowSet("SELECT rate FROM Film WHERE film_id=?", id);
-        rs.next();
-        int rate = rs.getInt("rate");
-        rate--;
-        String sqlRate = "UPDATE Film SET rate=? WHERE film_id=?";
-        jdbcTemplate.update(sqlRate, rate, id);
+        int del = jdbcTemplate.update(sqlQuery, id, userId);
+        if (del <= 0) {
+            return;
+        }
+        String sqlRate = "UPDATE Film SET rate=rate-1 WHERE film_id=?";
+        jdbcTemplate.update(sqlRate, id);
     }
 
     @Override
@@ -218,7 +210,7 @@ public class FilmDbStorage implements FilmStorage {
     private void addGenresToFilm(List<Film> films) {
         List<Long> filmIds = films.stream().map(Film::getId).collect(Collectors.toList());
         Map<Long, List<Genre>> filmToGenresMap = getGenresToFilms(filmIds);
-        films.stream().forEach(f -> f.getGenres().addAll(filmToGenresMap.getOrDefault(f.getId(),
+        films.forEach(f -> f.getGenres().addAll(filmToGenresMap.getOrDefault(f.getId(),
                 Collections.emptyList())));
     }
 
@@ -250,7 +242,7 @@ public class FilmDbStorage implements FilmStorage {
     public void addRatingToFilm(List<Film> films) {
         List<Long> filmIds = films.stream().map(Film::getId).collect(Collectors.toList());
         Map<Long, Mpa> filmToRatingMap = getRatingToFilms(filmIds);
-        films.stream().forEach(f -> f.setMpa(filmToRatingMap.getOrDefault(f.getId(), null)));
+        films.forEach(f -> f.setMpa(filmToRatingMap.getOrDefault(f.getId(), null)));
     }
 
     private Map<Long, Mpa> getRatingToFilms(List<Long> filmIds) {
