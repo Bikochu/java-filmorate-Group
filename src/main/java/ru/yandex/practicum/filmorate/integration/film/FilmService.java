@@ -65,11 +65,8 @@ public class FilmService {
         filmStorage.deleteLike(id, userId);
     }
 
-    public List<Film> getTopFilms(Integer count) {
-        if (count == FIRST_TEN_FILMS) {
-            return filmStorage.getFilmsByCount(count);
-        }
-        return filmStorage.getTopFilms(count);
+    public List<Film> getTopFilms(Integer count, Integer genreId, Integer year) {
+        return filmStorage.getTopFilms(count, genreId, year);
     }
 
     public List<Film> getCommonFilms(Long userId, Long friendId) {
