@@ -144,7 +144,7 @@ public class FilmDbStorage implements FilmStorage {
                 "LEFT JOIN FILM_GENRE fg on f.film_id = fg.film_id " +
                 "LEFT JOIN LIKES l on f.film_id = l.film_id {} GROUP BY f.film_id ORDER BY COUNT DESC LIMIT ?";
         if (genreId == null && year == null) {
-            films = jdbcTemplate.query(sqlQuery.replace("%", ""), this::mapRowToFilm, limit);
+            films = jdbcTemplate.query(sqlQuery.replace("{}", ""), this::mapRowToFilm, limit);
         } else if (genreId == null) {
             films = jdbcTemplate.query(sqlQuery.replace(
                     "{}", "WHERE EXTRACT(YEAR FROM release_date) = ?"), this::mapRowToFilm, year, limit);
