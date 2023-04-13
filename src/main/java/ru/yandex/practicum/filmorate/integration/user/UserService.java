@@ -4,7 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import ru.yandex.practicum.filmorate.validator.UserValidator;
 
@@ -12,10 +14,13 @@ import java.util.*;
 
 @Service
 public class UserService {
+    private final FilmStorage filmStorage;
     private final UserStorage userStorage;
 
     @Autowired
-    public UserService(@Qualifier("userDbStorage") UserStorage userStorage) {
+    public UserService(@Qualifier("filmDbStorage") FilmStorage filmStorage,
+                       @Qualifier("userDbStorage") UserStorage userStorage) {
+        this.filmStorage = filmStorage;
         this.userStorage = userStorage;
     }
 
@@ -79,5 +84,8 @@ public class UserService {
         friendsUser.retainAll(friendsFriend);
         return friendsUser;
     }
-}
 
+    public List<Film> getRecommendations(long userId) {
+        return filmStorage.getRecommendations(userId);
+    }
+}

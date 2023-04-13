@@ -92,7 +92,8 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Film findFilmById(long id) {
         try {
-            String sqlQuery = "SELECT film_id, film_name, description, release_date, duration, rate FROM FILM where film_id = ?";
+            String sqlQuery = "SELECT film_id, film_name, description, release_date, duration, rate FROM FILM " +
+                    "WHERE film_id = ?";
             Film film = jdbcTemplate.queryForObject(sqlQuery, this::mapRowToFilm, id);
             addGenresToFilm(Collections.singletonList(film));
             addRatingToFilm(Collections.singletonList(film));
@@ -104,7 +105,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getAllFilms() {
-        String sqlQuery = "select film_id, film_name, description, release_date, duration, rate from film";
+        String sqlQuery = "SELECT film_id, film_name, description, release_date, duration, rate FROM film";
         List<Film> films = jdbcTemplate.query(sqlQuery, this::mapRowToFilm);
         addGenresToFilm(films);
         addRatingToFilm(films);
@@ -124,12 +125,12 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public void addLike(long id, long userId) {
-        String checkQuery = "select count(film_id) from likes where film_id = ? and user_id = ?";
+        String checkQuery = "SELECT COUNT(film_id) FROM likes WHERE film_id = ? AND user_id = ?";
         Integer count = jdbcTemplate.queryForObject(checkQuery, Integer.class, id, userId);
         if (count != null && count > 0) {
             return;
         }
-        String sqlQuery = "INSERT INTO Likes(film_id, user_id) values (?, ?)";
+        String sqlQuery = "INSERT INTO Likes(film_id, user_id) VALUES (?, ?)";
         jdbcTemplate.update(sqlQuery, id, userId);
         String sqlRate = "UPDATE Film SET rate=rate+1 WHERE film_id=?";
         jdbcTemplate.update(sqlRate, id);
@@ -137,7 +138,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public void deleteLike(long id, long userId) {
-        String sqlQuery = "DELETE FROM Likes WHERE film_id = ? and user_id = ?";
+        String sqlQuery = "DELETE FROM Likes WHERE film_id = ? AND user_id = ?";
         int del = jdbcTemplate.update(sqlQuery, id, userId);
         if (del <= 0) {
             return;
@@ -168,6 +169,24 @@ public class FilmDbStorage implements FilmStorage {
         return films;
     }
 
+    @Override
+    public List<Film> getRecommendations(long userId) {
+        String sqlQuery = "SELECT f.* FROM film f " +
+                "JOIN (SELECT DISTINCT l2.film_id, COUNT(*) relevation " +
+                "FROM likes l1 " +
+                "LEFT JOIN likes l2 ON l1.user_id = l2.user_id " +
+                "WHERE l1.film_id IN (SELECT film_id FROM likes WHERE user_id = ?) " +
+                "AND l2.film_id NOT IN (SELECT film_id FROM likes WHERE user_id = ?) " +
+                "GROUP BY l1.user_id, l2.film_id " +
+                "ORDER BY relevation DESC) AS r " +
+                "ON r.film_id = f.film_id";
+
+        List<Film> films = jdbcTemplate.query(sqlQuery, this::mapRowToFilm, userId, userId);
+        addGenresToFilm(films);
+        addRatingToFilm(films);
+        return films;
+    }
+
     private Film mapRowToFilm(ResultSet resultSet, int rowNum) throws SQLException {
         return Film.builder()
                 .id(resultSet.getLong("film_id"))
@@ -180,31 +199,31 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private void deleteLikeByFilmId(long id) {
-        String sqlQuery = "delete from likes where film_id = ?";
+        String sqlQuery = "DELETE FROM likes WHERE film_id = ?";
         jdbcTemplate.update(sqlQuery, id);
     }
 
     private void addGenresToFilm(long filmId, int genreId) {
-        String sqlQuery = "insert into film_genre(film_id, genre_id) values (?, ?)";
+        String sqlQuery = "INSERT INTO film_genre(film_id, genre_id) VALUES (?, ?)";
         jdbcTemplate.update(sqlQuery,
                 filmId,
                 genreId);
     }
 
     private void deleteGenresToFilm(long filmId) {
-        String sqlQuery = "delete from film_genre where film_id = ?";
+        String sqlQuery = "DELETE FROM film_genre WHERE film_id = ?";
         jdbcTemplate.update(sqlQuery, filmId);
     }
 
     private void addRatingToFilm(long filmId, int ratingId) {
-        String sqlQuery = "insert into film_rating(film_id, rating_id) values (?, ?)";
+        String sqlQuery = "INSERT INTO film_rating(film_id, rating_id) VALUES (?, ?)";
         jdbcTemplate.update(sqlQuery,
                 filmId,
                 ratingId);
     }
 
     private void deleteRatingToFilm(long filmId) {
-        String sqlQuery = "delete from film_rating where film_id = ?";
+        String sqlQuery = "DELETE FROM film_rating WHERE film_id = ?";
         jdbcTemplate.update(sqlQuery, filmId);
     }
 
@@ -224,8 +243,8 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private Map<Long, List<Genre>> getGenresToFilms(List<Long> filmIds) {
-        String sqlQuery = "select fg.film_id, g.genre_id, g.genre_name from film_genre as fg join genre as g on" +
-                " fg.genre_id = g.genre_id where fg.film_id in (:ids)";
+        String sqlQuery = "SELECT fg.film_id, g.genre_id, g.genre_name FROM film_genre AS fg JOIN genre AS g ON" +
+                " fg.genre_id = g.genre_id WHERE fg.film_id IN (:ids)";
         MapSqlParameterSource parameters = new MapSqlParameterSource();
         parameters.addValue("ids", filmIds);
         List<FilmToGenres> filmToGenresList = namedParameterJdbcTemplate.query(sqlQuery, parameters,
@@ -255,8 +274,8 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private Map<Long, Mpa> getRatingToFilms(List<Long> filmIds) {
-        String sqlQuery = "select rf.film_id, r.rating_id, r.rating_name from film_rating as rf join RATING r on" +
-                " r.RATING_ID = rf.RATING_ID where rf.film_id in (:ids)";
+        String sqlQuery = "SELECT rf.film_id, r.rating_id, r.rating_name FROM film_rating AS rf JOIN RATING r ON" +
+                " r.RATING_ID = rf.RATING_ID WHERE rf.film_id IN (:ids)";
         MapSqlParameterSource parameters = new MapSqlParameterSource();
         parameters.addValue("ids", filmIds);
         List<FilmToRating> filmToRatingList = namedParameterJdbcTemplate.query(sqlQuery, parameters,
@@ -309,6 +328,4 @@ public class FilmDbStorage implements FilmStorage {
                 .sorted(Comparator.comparingInt(Film::getRate).reversed())
                 .collect(Collectors.toList());
     }
-
-
 }
