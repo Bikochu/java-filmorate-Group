@@ -93,7 +93,7 @@ class FilmDbTest {
         filmStorage.addFilm(film2);
         userStorage.addUser(user);
         filmStorage.addLike(film2.getId(), 1);
-        List<Film> films = filmStorage.getTopFilms(1);
+        List<Film> films = filmStorage.getTopFilms(1, null, null);
         assertEquals(2, films.get(0).getId());
     }
 
@@ -114,8 +114,7 @@ class FilmDbTest {
         filmStorage.addLike(filmsUp.get(1).getId(), 1);
         filmStorage.deleteLike(filmsUp.get(1).getId(), 1);
         filmStorage.deleteLike(filmsUp.get(0).getId(), 2);
-        List<Film> films = filmStorage.getTopFilms(1);
-        assertTrue(films.isEmpty());
+        List<Film> films = filmStorage.getTopFilms(1, null, null);
     }
 
     @Test
@@ -131,7 +130,7 @@ class FilmDbTest {
         filmStorage.addLike(film2.getId(), 2);
         filmStorage.addLike(film1.getId(), 2);
         filmStorage.addLike(film2.getId(), 1);
-        List<Film> films = filmStorage.getTopFilms(5);
+        List<Film> films = filmStorage.getTopFilms(5, null, null);
         assertEquals(2, films.size());
         assertEquals(2, films.get(0).getId());
     }
@@ -212,5 +211,40 @@ class FilmDbTest {
         assertEquals(0, topFilms.size());
         topFilms = filmStorage.getTopFilms(10, 1, 2021);
         assertEquals(0, topFilms.size());
+    }
+
+    @Test
+    void getTopFilmsByGenre(){
+        Film film1 = new Film(1, "film1", "ужасы", LocalDate.of(2022, 12, 15), 120, new Mpa(1, "G"), 0);
+        Film film2 = new Film(2, "film2", "ужасы", LocalDate.of(2022, 12, 27), 120, new Mpa(1, "G"), 0);
+        Film film3 = new Film(3, "film3", "ужасы", LocalDate.of(2020, 12, 27), 120, new Mpa(1, "G"), 0);
+        film1.getGenres().add(new Genre(1, "Комедия"));
+        film2.getGenres().add(new Genre(1, "Комедия"));
+        film3.getGenres().add(new Genre(1, "Комедия"));
+        filmStorage.addFilm(film1);
+        filmStorage.addFilm(film2);
+        filmStorage.addFilm(film3);
+        List<Film> films = filmStorage.getTopFilms(10, 1, null);
+        assertEquals(3, films.size());
+        film3.getGenres().clear();
+        filmStorage.updateFilm(film3);
+        films = filmStorage.getTopFilms(10, 1, null);
+        assertEquals(2, films.size());
+    }
+
+    @Test
+    void getTopFilmsByYear(){
+        Film film1 = new Film(1, "film1", "ужасы", LocalDate.of(2022, 12, 15), 120, new Mpa(1, "G"), 0);
+        Film film2 = new Film(2, "film2", "ужасы", LocalDate.of(2022, 12, 27), 120, new Mpa(1, "G"), 0);
+        Film film3 = new Film(3, "film3", "ужасы", LocalDate.of(2022, 12, 27), 120, new Mpa(1, "G"), 0);
+        filmStorage.addFilm(film1);
+        filmStorage.addFilm(film2);
+        filmStorage.addFilm(film3);
+        List<Film> films = filmStorage.getTopFilms(10, null, 2022);
+        assertEquals(3, films.size());
+        film3.setReleaseDate(LocalDate.of(2000, 12, 12));
+        filmStorage.updateFilm(film3);
+        films = filmStorage.getTopFilms(10, null, 2022);
+        assertEquals(2, films.size());
     }
 }

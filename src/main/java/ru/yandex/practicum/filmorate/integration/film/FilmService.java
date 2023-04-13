@@ -10,9 +10,7 @@ import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import ru.yandex.practicum.filmorate.validator.FilmValidator;
 
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class FilmService {
@@ -67,18 +65,8 @@ public class FilmService {
         filmStorage.deleteLike(id, userId);
     }
 
-    public List<Film> getTopFilms(Integer count) {
-        return filmStorage.getAllFilms().stream()
-                .sorted(Comparator.comparingInt(Film::getRate).reversed())
-                .limit(count)
-                .collect(Collectors.toList());
-    }
-
     public List<Film> getTopFilms(Integer limit, Integer genreId, Integer year) {
-        if (genreId != null & year != null) {
-            return filmStorage.getTopFilms(limit, genreId, year);
-        }
-        return getTopFilms(limit);
+        return filmStorage.getTopFilms(limit, genreId, year);
     }
 
     public List<Film> getCommonFilms(Long userId, Long friendId) {
