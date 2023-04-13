@@ -135,74 +135,30 @@ public class FilmDbStorage implements FilmStorage {
         jdbcTemplate.update(sqlRate, id);
     }
 
-    private List<Film> getTopFilms(Integer count) {
-        String sqlQuery = ("SELECT F.FILM_ID, F.FILM_NAME, F.DESCRIPTION, F.RELEASE_DATE, F.DURATION, F.RATE, " +
-                "COUNT(USER_ID) AS COUNT FROM FILM F LEFT JOIN LIKES L on F.FILM_ID = L.FILM_ID " +
-                "GROUP BY F.FILM_ID ORDER BY COUNT DESC LIMIT ?");
-        return jdbcTemplate.query(sqlQuery, this::mapRowToFilm, count);
-    }
-
     @Override
     public List<Film> getTopFilms(Integer limit, Integer genreId, Integer year) {
         List<Film> films;
-        String sqlQuery = "SELECT F.FILM_ID, F.FILM_NAME, F.DESCRIPTION, F.RELEASE_DATE, F.DURATION, F.RATE, " +
-                "COUNT(L.USER_ID) AS COUNT " +
-                "FROM FILM F " +
-                "LEFT JOIN FILM_GENRE FG on F.FILM_ID = FG.FILM_ID " +
-                "LEFT JOIN LIKES L on F.FILM_ID = L.FILM_ID % GROUP BY F.FILM_ID ORDER BY COUNT DESC LIMIT ?";
-        if (genreId == null & year == null) {
+        String sqlQuery = "SELECT f.film_id, f.film_name, f.description, f.release_date, f.duration, f.rate, " +
+                "COUNT(l.user_id) AS COUNT " +
+                "FROM FILM f " +
+                "LEFT JOIN FILM_GENRE fg on f.film_id = fg.film_id " +
+                "LEFT JOIN LIKES l on f.film_id = l.film_id {} GROUP BY f.film_id ORDER BY COUNT DESC LIMIT ?";
+        if (genreId == null && year == null) {
             films = jdbcTemplate.query(sqlQuery.replace("%", ""), this::mapRowToFilm, limit);
         } else if (genreId == null) {
             films = jdbcTemplate.query(sqlQuery.replace(
-                    "%", "WHERE EXTRACT(YEAR FROM RELEASE_DATE) = ?"), this::mapRowToFilm, year, limit);
+                    "{}", "WHERE EXTRACT(YEAR FROM release_date) = ?"), this::mapRowToFilm, year, limit);
         } else if (year == null) {
             films = jdbcTemplate.query(sqlQuery.replace(
-                    "%", "WHERE GENRE_ID = ?"), this::mapRowToFilm, genreId, limit);
+                    "{}", "WHERE genre_id = ?"), this::mapRowToFilm, genreId, limit);
         } else {
             films = jdbcTemplate.query(sqlQuery.replace(
-                    "%", "WHERE GENRE_ID = ? " +
-                            "AND EXTRACT(YEAR FROM RELEASE_DATE) = ? "), this::mapRowToFilm, genreId, year, limit);
+                    "{}", "WHERE genre_id = ? " +
+                            "AND EXTRACT(YEAR FROM release_date) = ? "), this::mapRowToFilm, genreId, year, limit);
         }
         addGenresToFilm(films);
         addRatingToFilm(films);
         return films;
-    }
-
-    private List<Film> getTopFilmsByYear(int limit, int year) {
-        String sqlQuery = "SELECT F.FILM_ID, F.FILM_NAME, F.DESCRIPTION, F.RELEASE_DATE, F.DURATION, F.RATE, " +
-                "COUNT(L.USER_ID) AS COUNT " +
-                "FROM FILM F " +
-                "LEFT JOIN FILM_GENRE FG on F.FILM_ID = FG.FILM_ID " +
-                "LEFT JOIN LIKES L on F.FILM_ID = L.FILM_ID " +
-                "WHERE EXTRACT(YEAR FROM RELEASE_DATE) = ? " +
-                "GROUP BY F.FILM_ID " +
-                "ORDER BY COUNT DESC LIMIT ?";
-        return jdbcTemplate.query(sqlQuery, this::mapRowToFilm, year, limit);
-    }
-
-    private List<Film> getTopFilmsByGenre(int limit, int genreId) {
-        String sqlQuery = "SELECT F.FILM_ID, F.FILM_NAME, F.DESCRIPTION, F.RELEASE_DATE, F.DURATION, F.RATE, " +
-                "COUNT(L.USER_ID) AS COUNT " +
-                "FROM FILM F " +
-                "LEFT JOIN FILM_GENRE FG on F.FILM_ID = FG.FILM_ID " +
-                "LEFT JOIN LIKES L on F.FILM_ID = L.FILM_ID " +
-                "WHERE GENRE_ID = ? " +
-                "GROUP BY F.FILM_ID " +
-                "ORDER BY COUNT DESC LIMIT ?";
-        return jdbcTemplate.query(sqlQuery, this::mapRowToFilm, genreId, limit);
-    }
-
-    private List<Film> getTopFilmsByGenreAndYear(int limit, Integer genreId, Integer year) {
-        String sqlQuery = "SELECT F.FILM_ID, F.FILM_NAME, F.DESCRIPTION, F.RELEASE_DATE, F.DURATION, F.RATE, " +
-                "COUNT(L.USER_ID) AS COUNT " +
-                "FROM FILM F " +
-                "LEFT JOIN FILM_GENRE FG on F.FILM_ID = FG.FILM_ID " +
-                "LEFT JOIN LIKES L on F.FILM_ID = L.FILM_ID " +
-                "WHERE GENRE_ID = ? " +
-                "AND EXTRACT(YEAR FROM RELEASE_DATE) = ? " +
-                "GROUP BY F.FILM_ID " +
-                "ORDER BY COUNT DESC LIMIT ?";
-        return jdbcTemplate.query(sqlQuery, this::mapRowToFilm, genreId, year, limit);
     }
 
     private Film mapRowToFilm(ResultSet resultSet, int rowNum) throws SQLException {
