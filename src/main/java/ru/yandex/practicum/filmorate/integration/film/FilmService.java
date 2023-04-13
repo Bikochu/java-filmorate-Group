@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class FilmService {
-    private static final int FIRST_TEN_FILMS = 10;
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
 
@@ -72,10 +71,6 @@ public class FilmService {
                 .sorted(Comparator.comparingInt(Film::getRate).reversed())
                 .limit(count)
                 .collect(Collectors.toList());
-    }
-
-    public List<Film> getCommonFilms(Long userId, Long friendId) {
-        return filmStorage.getCommonFilms(userId, friendId);
     }
 
     public List<Film> getCommonFilms(Long userId, Long friendId) {
