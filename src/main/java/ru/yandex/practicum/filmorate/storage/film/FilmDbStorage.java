@@ -159,6 +159,23 @@ public class FilmDbStorage implements FilmStorage {
         return films;
     }
 
+    @Override
+    public List<Film> getTopFilms(int limit, int genreId, int year) {
+        String sqlQuery = "SELECT F.FILM_ID, F.FILM_NAME, F.DESCRIPTION, F.RELEASE_DATE, F.DURATION, F.RATE, " +
+                "COUNT(L.USER_ID) AS COUNT " +
+                "FROM FILM F " +
+                "LEFT JOIN FILM_GENRE FG on F.FILM_ID = FG.FILM_ID " +
+                "LEFT JOIN LIKES L on F.FILM_ID = L.FILM_ID " +
+                "WHERE GENRE_ID = ? " +
+                "AND EXTRACT(YEAR FROM RELEASE_DATE) = ? " +
+                "GROUP BY F.FILM_ID " +
+                "ORDER BY COUNT DESC LIMIT ?";
+        List<Film> films = jdbcTemplate.query(sqlQuery, this::mapRowToFilm, genreId, year, limit);
+        addGenresToFilm(films);
+        addRatingToFilm(films);
+        return films;
+    }
+
     private Film mapRowToFilm(ResultSet resultSet, int rowNum) throws SQLException {
         return Film.builder()
                 .id(resultSet.getLong("film_id"))
@@ -290,9 +307,9 @@ public class FilmDbStorage implements FilmStorage {
         String sql = "SELECT FILM_ID " +
                 "FROM LIKES " +
                 "WHERE USER_ID = ? " +
-                    "INTERSECT SELECT FILM_ID " +
-                    "FROM LIKES " +
-                    "WHERE USER_ID = ?";
+                "INTERSECT SELECT FILM_ID " +
+                "FROM LIKES " +
+                "WHERE USER_ID = ?";
         List<Integer> listOfCommonFilms = jdbcTemplate.queryForList(sql, new Object[]{userId, friendId}, Integer.class);
         List<Film> listOfFilms = new ArrayList<>();
         listOfCommonFilms.forEach(film -> listOfFilms.add(findFilmById(film)));
@@ -300,6 +317,4 @@ public class FilmDbStorage implements FilmStorage {
                 .sorted(Comparator.comparingInt(Film::getRate).reversed())
                 .collect(Collectors.toList());
     }
-
-
 }

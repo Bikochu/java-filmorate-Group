@@ -7,6 +7,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
@@ -174,5 +175,41 @@ class FilmDbTest {
         List<Film> listOfFilms = filmStorage.getCommonFilms(1, 2);
         assertEquals(film2.getId(), listOfFilms.get(0).getId(), "Не соответствует.");
         assertEquals(2, listOfFilms.size(), "Не соответствует.");
+    }
+
+    @Test
+    void getTopFilmsByGenreAndYear(){
+        Film film1 = new Film(1, "film1", "ужасы", LocalDate.of(2022, 12, 15), 120, new Mpa(1, "G"), 0);
+        Film film2 = new Film(2, "film2", "ужасы", LocalDate.of(2022, 12, 27), 120, new Mpa(1, "G"), 0);
+        Film film3 = new Film(3, "film3", "ужасы", LocalDate.of(2020, 12, 27), 120, new Mpa(1, "G"), 0);
+        film1.getGenres().add(new Genre(1, "Комедия"));
+        film2.getGenres().add(new Genre(1, "Комедия"));
+        film3.getGenres().add(new Genre(1, "Комедия"));
+        User user1 = new User(1, "user@gmail.com", "goshan", "Григорий Петров", LocalDate.of(2000, 5, 25));
+        User user2 = new User(2, "zina@mail.ru", "zina", "Зина Сидорова", LocalDate.of(2000, 5, 25));
+        User user3 = new User(3, "vany@mail.ru", "vany", "Иван Пушхов", LocalDate.of(2000, 5, 25));
+        filmStorage.addFilm(film1);
+        filmStorage.addFilm(film2);
+        filmStorage.addFilm(film3);
+        userStorage.addUser(user1);
+        userStorage.addUser(user2);
+        userStorage.addUser(user3);
+        filmStorage.addLike(1, 1);
+        filmStorage.addLike(1, 2);
+        filmStorage.addLike(1, 3);
+        filmStorage.addLike(2, 1);
+        filmStorage.addLike(2, 2);
+        filmStorage.addLike(3, 2);
+        filmStorage.addLike(3, 3);
+        List<Film> topFilms =  filmStorage.getTopFilms(10, 1, 2022);
+        assertEquals(2, topFilms.size());
+        assertEquals(topFilms.get(0).getName(), film1.getName());
+        assertEquals(topFilms.get(1).getName(), film2.getName());
+        topFilms = filmStorage.getTopFilms(10, 1, 2020);
+        assertEquals(1, topFilms.size());
+        topFilms = filmStorage.getTopFilms(10, 3, 2020);
+        assertEquals(0, topFilms.size());
+        topFilms = filmStorage.getTopFilms(10, 1, 2021);
+        assertEquals(0, topFilms.size());
     }
 }
