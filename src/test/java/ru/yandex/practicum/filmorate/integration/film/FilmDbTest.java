@@ -112,8 +112,9 @@ class FilmDbTest {
         filmStorage.addLike(filmsUp.get(1).getId(), 1);
         filmStorage.deleteLike(filmsUp.get(1).getId(), 1);
         filmStorage.deleteLike(filmsUp.get(0).getId(), 2);
-        List<Film> films = filmStorage.getTopFilms(1);
-        assertTrue(films.isEmpty());
+        List<Film> filmsCheck = filmStorage.getAllFilms();
+        assertTrue(filmsCheck.get(0).getLikes().isEmpty());
+        assertTrue(filmsCheck.get(1).getLikes().isEmpty());
     }
 
     @Test

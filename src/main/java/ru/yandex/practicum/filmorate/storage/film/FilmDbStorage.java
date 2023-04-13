@@ -83,7 +83,10 @@ public class FilmDbStorage implements FilmStorage {
         deleteRatingToFilm(id);
         deleteLikeByFilmId(id);
         String sqlQuery = "delete from film where film_id = ?";
-        jdbcTemplate.update(sqlQuery, id);
+        int upd = jdbcTemplate.update(sqlQuery, id);
+        if (upd == 0) {
+            throw new NotFoundException("Фильм с Id " + id + " не найден");
+        }
     }
 
     @Override
@@ -154,6 +157,12 @@ public class FilmDbStorage implements FilmStorage {
                 "ORDER BY count(USER_ID) DESC) " +
                 "LIMIT ?";
         List<Film> films = jdbcTemplate.query(sqlQuery, this::mapRowToFilm, count);
+        if (films.isEmpty()) {
+            sqlQuery = "SELECT film_id, film_name, description, release_date, duration, rate " +
+                    "FROM FILM " +
+                    "LIMIT ?";
+            films = jdbcTemplate.query(sqlQuery, this::mapRowToFilm, count);
+        }
         addGenresToFilm(films);
         addRatingToFilm(films);
         return films;

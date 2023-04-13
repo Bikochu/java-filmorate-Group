@@ -29,9 +29,9 @@ public class FilmController {
         return filmService.updateFilm(film);
     }
 
-    @RequestMapping(method = RequestMethod.DELETE)
-    public void deleteFilmById(@Valid @RequestBody Film id) {
-        filmService.deleteFilmById(id.getId());
+    @DeleteMapping("/{filmId}")
+    public void deleteFilmById(@PathVariable long filmId) {
+        filmService.deleteFilmById(filmId);
     }
 
     @GetMapping("/{id}")
