@@ -74,6 +74,13 @@ public class FilmService {
                 .collect(Collectors.toList());
     }
 
+    public List<Film> getTopFilms(Integer limit, Integer genreId, Integer year) {
+        if (genreId != null & year != null) {
+            return filmStorage.getTopFilms(limit, genreId, year);
+        }
+        return getTopFilms(limit);
+    }
+
     public List<Film> getCommonFilms(Long userId, Long friendId) {
         return filmStorage.getCommonFilms(userId, friendId);
     }
