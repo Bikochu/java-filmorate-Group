@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.integration.film;
 
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,7 +17,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.annotation.DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD;
 
 @SpringBootTest
@@ -46,7 +47,7 @@ class FilmDbTest {
         List<Long> id = films.stream()
                 .filter(f -> f.getName().equals("blablacar2"))
                 .map(Film::getId)
-                        .collect(Collectors.toList());
+                .collect(Collectors.toList());
         updFilm.setId(id.get(0));
         filmStorage.updateFilm(updFilm);
         Film filmCheck = filmStorage.findFilmById(id.get(0));
@@ -178,7 +179,7 @@ class FilmDbTest {
     }
 
     @Test
-    void getTopFilmsByGenreAndYear(){
+    void getTopFilmsByGenreAndYear() {
         Film film1 = new Film(1, "film1", "ужасы", LocalDate.of(2022, 12, 15), 120, new Mpa(1, "G"), 0);
         Film film2 = new Film(2, "film2", "ужасы", LocalDate.of(2022, 12, 27), 120, new Mpa(1, "G"), 0);
         Film film3 = new Film(3, "film3", "ужасы", LocalDate.of(2020, 12, 27), 120, new Mpa(1, "G"), 0);
@@ -201,7 +202,7 @@ class FilmDbTest {
         filmStorage.addLike(2, 2);
         filmStorage.addLike(3, 2);
         filmStorage.addLike(3, 3);
-        List<Film> topFilms =  filmStorage.getTopFilms(10, 1, 2022);
+        List<Film> topFilms = filmStorage.getTopFilms(10, 1, 2022);
         assertEquals(2, topFilms.size());
         assertEquals(topFilms.get(0).getName(), film1.getName());
         assertEquals(topFilms.get(1).getName(), film2.getName());
