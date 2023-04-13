@@ -145,14 +145,23 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> getTopFilms(Integer limit, Integer genreId, Integer year) {
         List<Film> films;
+        String sqlQuery = "SELECT F.FILM_ID, F.FILM_NAME, F.DESCRIPTION, F.RELEASE_DATE, F.DURATION, F.RATE, " +
+                "COUNT(L.USER_ID) AS COUNT " +
+                "FROM FILM F " +
+                "LEFT JOIN FILM_GENRE FG on F.FILM_ID = FG.FILM_ID " +
+                "LEFT JOIN LIKES L on F.FILM_ID = L.FILM_ID % GROUP BY F.FILM_ID ORDER BY COUNT DESC LIMIT ?";
         if (genreId == null & year == null) {
-            films = getTopFilms(limit);
+            films = jdbcTemplate.query(sqlQuery.replace("%", ""), this::mapRowToFilm, limit);
         } else if (genreId == null) {
-            films = getTopFilmsByYear(limit, year);
+            films = jdbcTemplate.query(sqlQuery.replace(
+                    "%", "WHERE EXTRACT(YEAR FROM RELEASE_DATE) = ?"), this::mapRowToFilm, year, limit);
         } else if (year == null) {
-            films = getTopFilmsByGenre(limit, genreId);
+            films = jdbcTemplate.query(sqlQuery.replace(
+                    "%", "WHERE GENRE_ID = ?"), this::mapRowToFilm, genreId, limit);
         } else {
-            films = getTopFilmsByGenreAndYear(limit, genreId, year);
+            films = jdbcTemplate.query(sqlQuery.replace(
+                    "%", "WHERE GENRE_ID = ? " +
+                            "AND EXTRACT(YEAR FROM RELEASE_DATE) = ? "), this::mapRowToFilm, genreId, year, limit);
         }
         addGenresToFilm(films);
         addRatingToFilm(films);
@@ -168,8 +177,7 @@ public class FilmDbStorage implements FilmStorage {
                 "WHERE EXTRACT(YEAR FROM RELEASE_DATE) = ? " +
                 "GROUP BY F.FILM_ID " +
                 "ORDER BY COUNT DESC LIMIT ?";
-        List<Film> films = jdbcTemplate.query(sqlQuery, this::mapRowToFilm, year, limit);
-        return films;
+        return jdbcTemplate.query(sqlQuery, this::mapRowToFilm, year, limit);
     }
 
     private List<Film> getTopFilmsByGenre(int limit, int genreId) {
@@ -181,8 +189,7 @@ public class FilmDbStorage implements FilmStorage {
                 "WHERE GENRE_ID = ? " +
                 "GROUP BY F.FILM_ID " +
                 "ORDER BY COUNT DESC LIMIT ?";
-        List<Film> films = jdbcTemplate.query(sqlQuery, this::mapRowToFilm, genreId, limit);
-        return films;
+        return jdbcTemplate.query(sqlQuery, this::mapRowToFilm, genreId, limit);
     }
 
     private List<Film> getTopFilmsByGenreAndYear(int limit, Integer genreId, Integer year) {
@@ -195,8 +202,7 @@ public class FilmDbStorage implements FilmStorage {
                 "AND EXTRACT(YEAR FROM RELEASE_DATE) = ? " +
                 "GROUP BY F.FILM_ID " +
                 "ORDER BY COUNT DESC LIMIT ?";
-        List<Film> films = jdbcTemplate.query(sqlQuery, this::mapRowToFilm, genreId, year, limit);
-        return films;
+        return jdbcTemplate.query(sqlQuery, this::mapRowToFilm, genreId, year, limit);
     }
 
     private Film mapRowToFilm(ResultSet resultSet, int rowNum) throws SQLException {
