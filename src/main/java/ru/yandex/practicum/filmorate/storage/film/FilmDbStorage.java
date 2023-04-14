@@ -90,6 +90,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public void deleteFilmById(long id) {
+        deleteDirectorsByFilmId(id);
         deleteGenresToFilm(id);
         deleteRatingToFilm(id);
         deleteLikeByFilmId(id);
