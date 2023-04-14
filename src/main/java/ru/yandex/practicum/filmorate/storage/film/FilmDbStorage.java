@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -11,6 +12,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -50,6 +52,9 @@ public class FilmDbStorage implements FilmStorage {
         film.setId(keyHolder.getKey().longValue());
         addRatingToFilm(film.getId(), film.getMpa().getId());
         film.getGenres().forEach(g -> addGenresToFilm(film.getId(), g.getId()));
+        setDirectors(film.getDirectors(), film.getId());
+        film.getDirectors().clear();
+        film.getDirectors().addAll(getDirectorsByFilmId(film.getId()));
         return film;
     }
 
@@ -74,6 +79,10 @@ public class FilmDbStorage implements FilmStorage {
         addRatingToFilm(film.getId(), film.getMpa().getId());
         film.getGenres().clear();
         film.getGenres().addAll(genres);
+        deleteDirectorsByFilmId(film.getId());
+        setDirectors(film.getDirectors(), film.getId());
+        film.getDirectors().clear();
+        film.getDirectors().addAll(getDirectorsByFilmId(film.getId()));
         return film;
     }
 
@@ -97,6 +106,7 @@ public class FilmDbStorage implements FilmStorage {
             Film film = jdbcTemplate.queryForObject(sqlQuery, this::mapRowToFilm, id);
             addGenresToFilm(Collections.singletonList(film));
             addRatingToFilm(Collections.singletonList(film));
+            film.getDirectors().addAll(getDirectorsByFilmId(film.getId()));
             return film;
         } catch (EmptyResultDataAccessException e) {
             throw new NotFoundException("Фильм с Id " + id + " не найден");
@@ -109,6 +119,7 @@ public class FilmDbStorage implements FilmStorage {
         List<Film> films = jdbcTemplate.query(sqlQuery, this::mapRowToFilm);
         addGenresToFilm(films);
         addRatingToFilm(films);
+        addDirectorsToFilm(films);
         return films;
     }
 
@@ -159,6 +170,7 @@ public class FilmDbStorage implements FilmStorage {
         }
         addGenresToFilm(films);
         addRatingToFilm(films);
+        addDirectorsToFilm(films);
         return films;
     }
 
@@ -177,6 +189,7 @@ public class FilmDbStorage implements FilmStorage {
         List<Film> films = jdbcTemplate.query(sqlQuery, this::mapRowToFilm, userId, userId);
         addGenresToFilm(films);
         addRatingToFilm(films);
+        addDirectorsToFilm(films);
         return films;
     }
 
@@ -260,11 +273,51 @@ public class FilmDbStorage implements FilmStorage {
         return filmToGenresMap;
     }
 
-    public void addRatingToFilm(List<Film> films) {
+    private void addRatingToFilm(List<Film> films) {
         List<Long> filmIds = films.stream().map(Film::getId).collect(Collectors.toList());
         Map<Long, Mpa> filmToRatingMap = getRatingToFilms(filmIds);
         films.forEach(f -> f.setMpa(filmToRatingMap.getOrDefault(f.getId(), null)));
     }
+
+    private List<Director> getDirectorsByFilmId(long id){
+        String sql = "SELECT * FROM DIRECTOR D LEFT JOIN FILM_DIRECTOR FD on D.DIRECTOR_ID = FD.DIRECTOR_ID " +
+                "WHERE FILM_ID = ?";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            Director d = new Director();
+            d.setId(rs.getInt("DIRECTOR_ID"));
+            d.setName(rs.getString("NAME"));
+            return d;
+        }, id);
+    }
+
+    private void setDirectors(List<Director> directors, long filmId){
+        String sql = "MERGE INTO FILM_DIRECTOR (FILM_ID, DIRECTOR_ID) VALUES (?, ?)";
+        jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
+            @Override
+            public void setValues(PreparedStatement ps, int i) throws SQLException {
+                Director d = directors.get(i);
+                ps.setLong(1, filmId);
+                ps.setInt(2, d.getId());
+            }
+
+            @Override
+            public int getBatchSize() {
+                return directors.size();
+            }
+        });
+    }
+
+    private void addDirectorsToFilm(List<Film> films){
+        for (Film film : films){
+            film.getDirectors().addAll(getDirectorsByFilmId(film.getId()));
+        }
+    }
+
+    private void deleteDirectorsByFilmId(long id){
+        jdbcTemplate.update("DELETE FROM FILM_DIRECTOR WHERE FILM_ID = ?", id);
+    }
+
+
 
     private Map<Long, Mpa> getRatingToFilms(List<Long> filmIds) {
         String sqlQuery = "SELECT rf.film_id, r.rating_id, r.rating_name FROM film_rating AS rf JOIN RATING r ON" +
