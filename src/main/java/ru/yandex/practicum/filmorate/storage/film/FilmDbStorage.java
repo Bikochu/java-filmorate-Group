@@ -73,12 +73,14 @@ public class FilmDbStorage implements FilmStorage {
             throw new NotFoundException("Фильм с Id " + film.getId() + " не найден");
         }
         deleteGenresToFilm(film.getId());
-        deleteRatingToFilm(film.getId());
         Set<Genre> genres = new LinkedHashSet<>(film.getGenres());
         genres.forEach(g -> addGenresToFilm(film.getId(), g.getId()));
-        addRatingToFilm(film.getId(), film.getMpa().getId());
         film.getGenres().clear();
         film.getGenres().addAll(genres);
+
+        deleteRatingToFilm(film.getId());
+        addRatingToFilm(film.getId(), film.getMpa().getId());
+
         deleteDirectorsByFilmId(film.getId());
         setDirectors(film.getDirectors(), film.getId());
         film.getDirectors().clear();
@@ -223,9 +225,7 @@ public class FilmDbStorage implements FilmStorage {
 
     private void addRatingToFilm(long filmId, int ratingId) {
         String sqlQuery = "INSERT INTO film_rating(film_id, rating_id) VALUES (?, ?)";
-        jdbcTemplate.update(sqlQuery,
-                filmId,
-                ratingId);
+        jdbcTemplate.update(sqlQuery, filmId, ratingId);
     }
 
     private void deleteRatingToFilm(long filmId) {

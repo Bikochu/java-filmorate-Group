@@ -7,6 +7,7 @@ DROP TABLE IF EXISTS USERS CASCADE;
 DROP TABLE IF EXISTS USERS_FRIEND CASCADE;
 DROP TABLE IF EXISTS DIRECTOR CASCADE;
 DROP TABLE IF EXISTS FILM_DIRECTOR CASCADE;
+DROP TABLE IF EXISTS FILM_RATING CASCADE;
 
 create table IF NOT EXISTS RATING
 (
@@ -41,19 +42,20 @@ create table IF NOT EXISTS FILM_GENRE
     FILM_ID  INTEGER,
     GENRE_ID INTEGER,
     constraint "FILM_GENRE_FILM_FILM_ID_fk"
-        foreign key (FILM_ID) references PUBLIC.FILM,
+        foreign key (FILM_ID) references FILM,
     constraint "FILM_GENRE_GENRE_GENRE_ID_fk"
-        foreign key (GENRE_ID) references PUBLIC.GENRE
+        foreign key (GENRE_ID) references GENRE
 );
 
 create table IF NOT EXISTS FILM_RATING
 (
-    FILM_ID   INTEGER,
-    RATING_ID INTEGER,
+    FILM_ID        INTEGER,
+    RATING_ID      INTEGER,
+    PRIMARY KEY (FILM_ID, RATING_ID),
     constraint "FILM_RATING_FILM_FILM_ID_fk"
-        foreign key (FILM_ID) references PUBLIC.FILM,
+        foreign key (FILM_ID) references FILM,
     constraint "FILM_RATING_RATING_RATING_ID_fk"
-        foreign key (RATING_ID) references PUBLIC.RATING
+        foreign key (RATING_ID) references RATING
 );
 
 create table IF NOT EXISTS USERS
@@ -72,9 +74,9 @@ create table IF NOT EXISTS LIKES
     FILM_ID INTEGER,
     USER_ID INTEGER,
     constraint "LIKES_FILM_FILM_ID_fk"
-        foreign key (FILM_ID) references PUBLIC.FILM,
+        foreign key (FILM_ID) references FILM,
     constraint "LIKES_USERS_USER_ID_fk"
-        foreign key (USER_ID) references PUBLIC.USERS
+        foreign key (USER_ID) references USERS
 );
 
 create table IF NOT EXISTS USERS_FRIEND
@@ -83,7 +85,7 @@ create table IF NOT EXISTS USERS_FRIEND
     FRIEND_ID INTEGER,
     STATUS    BOOLEAN,
     constraint "USERS_FRIEND_USERS_USER_ID_fk"
-        foreign key (USER_ID) references PUBLIC.USERS
+        foreign key (USER_ID) references USERS
 );
 
 CREATE TABLE IF NOT EXISTS DIRECTOR
