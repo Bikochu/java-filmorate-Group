@@ -374,4 +374,35 @@ public class FilmDbStorage implements FilmStorage {
                 .sorted(Comparator.comparingInt(Film::getRate).reversed())
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<Film> getFilmsByDirector(int id, String sortBy) {
+        String sqlQuery = "SELECT f.film_id, f.film_name, f.description, f.release_date, f.duration, f.rate, " +
+                "COUNT(l.user_id) AS COUNT " +
+                "FROM FILM AS f " +
+                "JOIN FILM_DIRECTOR AS fd ON f.film_id = fd.film_id " +
+                "LEFT JOIN LIKES AS l ON f.film_id = l.film_id " +
+                "WHERE fd.director_id = ? " +
+                "GROUP BY f.film_id " +
+                "ORDER BY CASE ? " +
+                "WHEN 'year' THEN EXTRACT(YEAR FROM f.release_date) " +
+                "WHEN 'likes' THEN f.rate " +
+                "END " +
+                (sortBy.equals("year") ? "ASC" : "DESC");
+        List<Film> films;
+        if (sortBy.equals("year")) {
+            films = jdbcTemplate.query(sqlQuery, this::mapRowToFilm, id, sortBy);
+        } else if (sortBy.equals("likes")) {
+            films = jdbcTemplate.query(sqlQuery, this::mapRowToFilm, id, sortBy);
+        } else {
+            throw new IllegalArgumentException("Неверный параметр sortBy. Должен быть либо - 'year', либо - 'likes'.");
+        }
+        if (films.isEmpty()) {
+            throw new NotFoundException("Режиссер с id=" + id + " не найден в базе данных.");
+        }
+        addGenresToFilm(films);
+        addRatingToFilm(films);
+        addDirectorsToFilm(films);
+        return films;
+    }
 }
