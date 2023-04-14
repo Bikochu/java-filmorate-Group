@@ -66,15 +66,11 @@ public class FilmService {
         filmStorage.deleteLike(id, userId);
     }
 
-    public List<Film> getTopFilms(Integer count) {
-        return filmStorage.getAllFilms().stream()
-                .sorted(Comparator.comparingInt(Film::getRate).reversed())
-                .limit(count)
-                .collect(Collectors.toList());
+    public List<Film> getTopFilms(Integer limit, Integer genreId, Integer year) {
+        return filmStorage.getTopFilms(limit, genreId, year);
     }
 
     public List<Film> getCommonFilms(Long userId, Long friendId) {
         return filmStorage.getCommonFilms(userId, friendId);
     }
 }
-
