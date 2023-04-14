@@ -231,4 +231,115 @@ class FilmDbTest {
         films = filmStorage.getTopFilms(10, null, 2022);
         assertEquals(2, films.size());
     }
+
+    @Test
+    void getRecommendationsIfNoLikes() {
+        assertEquals(0, filmStorage.getRecommendations(1).size());
+    }
+
+    @Test
+    void getRecommendationsIfNoSimilarLikes() {
+        Film film1 = new Film(1, "blablacar13", "ужасы", LocalDate.of(2022, 12, 15), 120, new Mpa(1, "G"), 0);
+        Film film2 = new Film(2, "blablacar14", "ужасы", LocalDate.of(2022, 12, 27), 120, new Mpa(1, "G"), 0);
+        Film film3 = new Film(3, "The third", "Sci-Fi", LocalDate.of(2022, 12, 15), 120, new Mpa(1, "G"), 0);
+        User user1 = new User(1, "", "goshan", "Григорий Петров", LocalDate.of(2000, 5, 25));
+
+        filmStorage.addFilm(film1);
+        filmStorage.addFilm(film2);
+        filmStorage.addFilm(film3);
+        userStorage.addUser(user1);
+
+        filmStorage.addLike(3, 1);
+
+        assertEquals(0, filmStorage.getRecommendations(1).size());
+    }
+
+    @Test
+    void getRecommendationsIfSimilarLikesButNothingToRecommend() {
+        Film film1 = new Film(1, "blablacar13", "ужасы", LocalDate.of(2022, 12, 15), 120, new Mpa(1, "G"), 0);
+        Film film2 = new Film(2, "blablacar14", "ужасы", LocalDate.of(2022, 12, 27), 120, new Mpa(1, "G"), 0);
+        Film film3 = new Film(3, "The third", "Sci-Fi", LocalDate.of(2022, 12, 15), 120, new Mpa(1, "G"), 0);
+        User user1 = new User(1, "", "goshan", "Григорий Петров", LocalDate.of(2000, 5, 25));
+        User user2 = new User(2, "zina@mail.ru", "zina", "Зина Сидорова", LocalDate.of(2000, 5, 25));
+
+        filmStorage.addFilm(film1);
+        filmStorage.addFilm(film2);
+        filmStorage.addFilm(film3);
+        userStorage.addUser(user1);
+        userStorage.addUser(user2);
+
+        filmStorage.addLike(3, 1);
+        filmStorage.addLike(3, 2);
+
+        assertEquals(0, filmStorage.getRecommendations(1).size());
+    }
+
+    @Test
+    void getRecommendationsIfSimilarLikes() {
+        Film film1 = new Film(1, "blablacar13", "ужасы", LocalDate.of(2022, 12, 15), 120, new Mpa(1, "G"), 0);
+        Film film2 = new Film(2, "blablacar14", "ужасы", LocalDate.of(2022, 12, 27), 120, new Mpa(1, "G"), 0);
+        Film film3 = new Film(3, "The third", "Sci-Fi", LocalDate.of(2022, 12, 15), 120, new Mpa(1, "G"), 0);
+        User user1 = new User(1, "", "goshan", "Григорий Петров", LocalDate.of(2000, 5, 25));
+        User user2 = new User(2, "zina@mail.ru", "zina", "Зина Сидорова", LocalDate.of(2000, 5, 25));
+
+        filmStorage.addFilm(film1);
+        filmStorage.addFilm(film2);
+        filmStorage.addFilm(film3);
+        userStorage.addUser(user1);
+        userStorage.addUser(user2);
+
+        filmStorage.addLike(3, 1);
+        filmStorage.addLike(3, 2);
+        filmStorage.addLike(2, 2);
+
+        List<Film> recommended = filmStorage.getRecommendations(1);
+        assertEquals(1, recommended.size());
+        assertEquals(2, recommended.get(0).getId());
+    }
+
+    @Test
+    void getRecommendationsIfSimilarLikesButNothingToRecommendForUserId2() {
+        Film film1 = new Film(1, "blablacar13", "ужасы", LocalDate.of(2022, 12, 15), 120, new Mpa(1, "G"), 0);
+        Film film2 = new Film(2, "blablacar14", "ужасы", LocalDate.of(2022, 12, 27), 120, new Mpa(1, "G"), 0);
+        Film film3 = new Film(3, "The third", "Sci-Fi", LocalDate.of(2022, 12, 15), 120, new Mpa(1, "G"), 0);
+        User user1 = new User(1, "", "goshan", "Григорий Петров", LocalDate.of(2000, 5, 25));
+        User user2 = new User(2, "zina@mail.ru", "zina", "Зина Сидорова", LocalDate.of(2000, 5, 25));
+
+        filmStorage.addFilm(film1);
+        filmStorage.addFilm(film2);
+        filmStorage.addFilm(film3);
+        userStorage.addUser(user1);
+        userStorage.addUser(user2);
+
+        filmStorage.addLike(3, 1);
+        filmStorage.addLike(3, 2);
+        filmStorage.addLike(2, 2);
+
+        List<Film> recommended = filmStorage.getRecommendations(2);
+        assertEquals(0, recommended.size());
+    }
+
+    @Test
+    void getRecommendationsIfSimilarLikesForUserId2() {
+        Film film1 = new Film(1, "blablacar13", "ужасы", LocalDate.of(2022, 12, 15), 120, new Mpa(1, "G"), 0);
+        Film film2 = new Film(2, "blablacar14", "ужасы", LocalDate.of(2022, 12, 27), 120, new Mpa(1, "G"), 0);
+        Film film3 = new Film(3, "The third", "Sci-Fi", LocalDate.of(2022, 12, 15), 120, new Mpa(1, "G"), 0);
+        User user1 = new User(1, "", "goshan", "Григорий Петров", LocalDate.of(2000, 5, 25));
+        User user2 = new User(2, "zina@mail.ru", "zina", "Зина Сидорова", LocalDate.of(2000, 5, 25));
+
+        filmStorage.addFilm(film1);
+        filmStorage.addFilm(film2);
+        filmStorage.addFilm(film3);
+        userStorage.addUser(user1);
+        userStorage.addUser(user2);
+
+        filmStorage.addLike(3, 1);
+        filmStorage.addLike(3, 2);
+        filmStorage.addLike(2, 2);
+        filmStorage.addLike(1, 1);
+
+        List<Film> recommended = filmStorage.getRecommendations(2);
+        assertEquals(1, recommended.size());
+        assertEquals(1, recommended.get(0).getId());
+    }
 }

@@ -14,7 +14,6 @@ import java.util.List;
 
 @Service
 public class FilmService {
-    private static final int FIRST_TEN_FILMS = 10;
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
 
@@ -73,4 +72,3 @@ public class FilmService {
         return filmStorage.getCommonFilms(userId, friendId);
     }
 }
-
