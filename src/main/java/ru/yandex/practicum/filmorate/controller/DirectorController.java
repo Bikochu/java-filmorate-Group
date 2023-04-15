@@ -33,7 +33,7 @@ public class DirectorController {
     }
 
     @GetMapping
-    public List<Director> getDirectors(){
+    public List<Director> getDirectors() {
         return directorService.getDirectors();
     }
 
