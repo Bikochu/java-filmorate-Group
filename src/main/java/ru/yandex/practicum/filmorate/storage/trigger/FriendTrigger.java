@@ -10,16 +10,16 @@ import java.sql.SQLException;
 
 @Slf4j
 public class FriendTrigger extends TriggerAdapter {
-    String sql = "INSERT INTO EVENTS (EVENT_TYPE,OPERATION,USER_ID,ENTITY_ID,EVENT_TS) "+
+    String sql = "INSERT INTO EVENTS (EVENT_TYPE,OPERATION,USER_ID,ENTITY_ID,EVENT_TS) " +
             "VALUES ('FRIEND',?,?,?,CURRENT_TIMESTAMP)";
 
     @Override
     public void fire(Connection connection, ResultSet oldRow, ResultSet newRow) throws SQLException {
-        if(newRow!=null && newRow.next()) {
+        if (newRow != null && newRow.next()) {
             // INSERT ROW
             long friendId = newRow.getLong("FRIEND_ID");
             long userId = newRow.getLong("USER_ID");
-            log.info("FriendTrigger: ADD {} {}",userId, friendId);
+            log.info("FriendTrigger: ADD {} {}", userId, friendId);
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setString(1, "ADD");
             ps.setLong(2, userId);
@@ -27,11 +27,11 @@ public class FriendTrigger extends TriggerAdapter {
             ps.executeUpdate();
             ps.close();
         }
-        if(oldRow!=null && oldRow.next()) {
+        if (oldRow != null && oldRow.next()) {
             // DELETE ROW
             long friendId = oldRow.getLong("FRIEND_ID");
             long userId = oldRow.getLong("USER_ID");
-            log.info("FriendTrigger: DEL {} {}",userId, friendId);
+            log.info("FriendTrigger: DEL {} {}", userId, friendId);
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setString(1, "REMOVE");
             ps.setLong(2, userId);
