@@ -425,6 +425,7 @@ public class FilmDbStorage implements FilmStorage {
                 "LEFT JOIN LIKES L on f.FILM_ID = L.FILM_ID " +
                 "GROUP BY f.FILM_ID " +
                 "ORDER BY COUNT DESC) ";
+
         if (by.size() == 2) {
             films = jdbcTemplate.query(sql + "WHERE LOWER(FILM_NAME) LIKE ? " +
                     "OR LOWER(NAME) LIKE ?", this::mapRowToFilm, q, q);
@@ -435,10 +436,10 @@ public class FilmDbStorage implements FilmStorage {
         } else {
             throw new IllegalArgumentException("Parameter mast be \"title\" or \"director\" or \"title & director\"");
         }
+
         addGenresToFilm(films);
         addRatingToFilm(films);
         addDirectorsToFilm(films);
         return films;
     }
-
 }
