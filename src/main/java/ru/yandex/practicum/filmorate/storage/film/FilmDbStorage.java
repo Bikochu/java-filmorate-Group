@@ -280,7 +280,7 @@ public class FilmDbStorage implements FilmStorage {
         films.forEach(f -> f.setMpa(filmToRatingMap.getOrDefault(f.getId(), null)));
     }
 
-    private List<Director> getDirectorsByFilmId(long id){
+    private List<Director> getDirectorsByFilmId(long id) {
         String sql = "SELECT * FROM DIRECTOR D LEFT JOIN FILM_DIRECTOR FD on D.DIRECTOR_ID = FD.DIRECTOR_ID " +
                 "WHERE FILM_ID = ?";
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
@@ -291,7 +291,7 @@ public class FilmDbStorage implements FilmStorage {
         }, id);
     }
 
-    private void setDirectors(List<Director> directors, long filmId){
+    private void setDirectors(List<Director> directors, long filmId) {
         String sql = "MERGE INTO FILM_DIRECTOR (FILM_ID, DIRECTOR_ID) VALUES (?, ?)";
         jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
             @Override
@@ -308,16 +308,15 @@ public class FilmDbStorage implements FilmStorage {
         });
     }
 
-    private void addDirectorsToFilm(List<Film> films){
-        for (Film film : films){
+    private void addDirectorsToFilm(List<Film> films) {
+        for (Film film : films) {
             film.getDirectors().addAll(getDirectorsByFilmId(film.getId()));
         }
     }
 
-    private void deleteDirectorsByFilmId(long id){
+    private void deleteDirectorsByFilmId(long id) {
         jdbcTemplate.update("DELETE FROM FILM_DIRECTOR WHERE FILM_ID = ?", id);
     }
-
 
 
     private Map<Long, Mpa> getRatingToFilms(List<Long> filmIds) {

@@ -6,10 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.*;
+import ru.yandex.practicum.filmorate.storage.director.DirectorDbStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
@@ -29,6 +27,8 @@ class FilmDbTest {
 
     private final FilmDbStorage filmStorage;
     private final UserDbStorage userStorage;
+    private final DirectorDbStorage directorStorage;
+
 
     @Test
     void addFilm() {
@@ -342,4 +342,37 @@ class FilmDbTest {
         assertEquals(1, recommended.size());
         assertEquals(1, recommended.get(0).getId());
     }
+
+    @Test
+    void addFilmWithDirector() {
+        Director director = directorStorage.addDirector(new Director(1, "Steven Spielberg"));
+
+        Film film = new Film(1, "blablacar13", "ужасы", LocalDate.of(2022, 12, 15), 120, new Mpa(1, "G"), 0);
+        film.getDirectors().add(director);
+        film = filmStorage.addFilm(film);
+
+        assertEquals(film, filmStorage.findFilmById(film.getId()));
+        assertEquals(director, filmStorage.findFilmById(film.getId()).getDirectors().get(0));
+    }
+
+    @Test
+    void updateFilmWithDirector() {
+        Director director = directorStorage.addDirector(new Director(1, "Steven Spielberg"));
+        Director director2 = directorStorage.addDirector(new Director(1, "Christopher Nolan"));
+        Film film = new Film(1, "blablacar13", "ужасы", LocalDate.of(2022, 12, 15), 120, new Mpa(1, "G"), 0);
+        film.getDirectors().add(director);
+        film = filmStorage.addFilm(film);
+
+        assertEquals(director, filmStorage.findFilmById(film.getId()).getDirectors().get(0));
+
+        film.getDirectors().clear();
+        film = filmStorage.updateFilm(film);
+        assertEquals(0, film.getDirectors().size());
+
+        film.getDirectors().add(director2);
+        filmStorage.updateFilm(film);
+        assertEquals(director2, filmStorage.findFilmById(film.getId()).getDirectors().get(0));
+    }
+
+
 }
