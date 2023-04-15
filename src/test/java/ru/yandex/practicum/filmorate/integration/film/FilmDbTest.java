@@ -8,6 +8,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.storage.director.DirectorDbStorage;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.*;
+import ru.yandex.practicum.filmorate.storage.director.DirectorDbStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
@@ -374,5 +377,77 @@ class FilmDbTest {
         assertEquals(director2, filmStorage.findFilmById(film.getId()).getDirectors().get(0));
     }
 
+    @Test
+    public void getFilmsByDirector_SortedByYear() {
+        Film film1 = new Film(1, "blablacar13", "ужасы", LocalDate.of(2022, 12, 15), 120, new Mpa(1, "G"), 0);
+        Film film2 = new Film(2, "blablacar14", "ужасы", LocalDate.of(2020, 12, 27), 120, new Mpa(1, "G"), 0);
+        Director director = directorStorage.addDirector(new Director(1, "Steven Spielberg"));
+        film1.getDirectors().add(director);
+        filmStorage.addFilm(film1);
+        film2.getDirectors().add(director);
+        filmStorage.addFilm(film2);
 
+        int directorId = 1;
+        String sortBy = "year";
+
+        List<Film> films = filmStorage.getFilmsByDirector(directorId, sortBy);
+
+        assertEquals(2, films.size(), "Не верное количество фильмов.");
+        assertEquals(2, films.get(0).getId(), "Неверный ID фильма");
+    }
+
+    @Test
+    public void getFilmsByDirector_SortedByLikes() {
+        Film film1 = new Film(1, "blablacar13", "ужасы", LocalDate.of(2022, 12, 15), 120, new Mpa(1, "G"), 0);
+        Film film2 = new Film(2, "blablacar14", "ужасы", LocalDate.of(2020, 12, 27), 120, new Mpa(1, "G"), 0);
+        User user1 = new User(1, "", "goshan", "Григорий Петров", LocalDate.of(2000, 5, 25));
+        User user2 = new User(2, "zina@mail.ru", "zina", "Зина Сидорова", LocalDate.of(2000, 5, 25));
+        Director director = directorStorage.addDirector(new Director(1, "Steven Spielberg"));
+        film1.getDirectors().add(director);
+        filmStorage.addFilm(film1);
+        film2.getDirectors().add(director);
+        filmStorage.addFilm(film2);
+        userStorage.addUser(user1);
+        userStorage.addUser(user2);
+        filmStorage.addLike(2, 1);
+        filmStorage.addLike(2, 2);
+        filmStorage.addLike(1, 1);
+        int directorId = 1;
+        String sortBy = "likes";
+        List<Film> films = filmStorage.getFilmsByDirector(directorId, sortBy);
+        assertEquals(2, films.size(), "Не верное количество фильмов.");
+        assertEquals(2, films.get(0).getId(), "Неверный ID фильма");
+    }
+
+    @Test
+    public void getFilmsByDirector_throwsIllegalArgumentException() {
+        Film film1 = new Film(1, "blablacar13", "ужасы", LocalDate.of(2022, 12, 15), 120, new Mpa(1, "G"), 0);
+        Director director = directorStorage.addDirector(new Director(1, "Steven Spielberg"));
+        film1.getDirectors().add(director);
+        filmStorage.addFilm(film1);
+        int directorId = 1;
+        String sortBy = "invalid";
+        try {
+            List<Film> films = filmStorage.getFilmsByDirector(directorId, sortBy);
+            assert false : "Ожидалось выбрасывание исключения IllegalArgumentException.";
+        } catch (IllegalArgumentException e) {
+            assert true;
+        }
+    }
+
+    @Test
+    public void testGetFilmsByDirector_withInvalidDirectorId_throwsNotFoundException() {
+        Film film1 = new Film(1, "blablacar13", "ужасы", LocalDate.of(2022, 12, 15), 120, new Mpa(1, "G"), 0);
+        Director director = directorStorage.addDirector(new Director(1, "Steven Spielberg"));
+        film1.getDirectors().add(director);
+        filmStorage.addFilm(film1);
+        int directorId = 10;
+        String sortBy = "year";
+        try {
+            List<Film> films = filmStorage.getFilmsByDirector(directorId, sortBy);
+            assert false : "Ожидалось выбрасывание исключения NotFoundException.";
+        } catch (NotFoundException e) {
+            assert true;
+        }
+    }
 }
