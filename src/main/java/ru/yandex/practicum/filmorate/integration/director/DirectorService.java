@@ -27,7 +27,7 @@ public class DirectorService {
         directorStorage.deleteDirector(id);
     }
 
-    public List<Director> getDirectors(){
+    public List<Director> getDirectors() {
         return directorStorage.getDirectors();
     }
 
