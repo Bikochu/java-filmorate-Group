@@ -405,4 +405,40 @@ public class FilmDbStorage implements FilmStorage {
         addDirectorsToFilm(films);
         return films;
     }
+
+    @Override
+    public List<Film> getFilmsByQuery(String query, List<String> by) {
+        String q = "%" + query.toLowerCase() + "%";
+        List<Film> films;
+        String sql = "SELECT * " +
+                "FROM (SELECT f.FILM_ID, " +
+                "FILM_NAME, " +
+                "DESCRIPTION, " +
+                "RELEASE_DATE, " +
+                "DURATION, " +
+                "RATE, " +
+                "NAME, " +
+                "COUNT(USER_ID) AS COUNT " +
+                "FROM FILM f " +
+                "LEFT JOIN FILM_DIRECTOR FD on f.FILM_ID = FD.FILM_ID " +
+                "LEFT JOIN DIRECTOR D on FD.DIRECTOR_ID = D.DIRECTOR_ID " +
+                "LEFT JOIN LIKES L on f.FILM_ID = L.FILM_ID " +
+                "GROUP BY f.FILM_ID " +
+                "ORDER BY COUNT DESC) ";
+        if (by.size() == 2) {
+            films = jdbcTemplate.query(sql + "WHERE LOWER(FILM_NAME) LIKE ? " +
+                    "OR LOWER(NAME) LIKE ?", this::mapRowToFilm, q, q);
+        } else if (by.get(0).equals("title")) {
+            films = jdbcTemplate.query(sql + "WHERE LOWER(FILM_NAME) LIKE ?", this::mapRowToFilm, q);
+        } else if (by.get(0).equals("director")) {
+            films = jdbcTemplate.query(sql + "WHERE LOWER(NAME) LIKE ?", this::mapRowToFilm, q);
+        } else {
+            throw new IllegalArgumentException("Parameter mast be \"title\" or \"director\" or \"title & director\"");
+        }
+        addGenresToFilm(films);
+        addRatingToFilm(films);
+        addDirectorsToFilm(films);
+        return films;
+    }
+
 }
