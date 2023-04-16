@@ -435,7 +435,6 @@ public class FilmDbStorage implements FilmStorage {
         } else {
             throw new IllegalArgumentException("Parameter mast be \"title\" or \"director\" or \"title & director\"");
         }
-
         addGenresToFilm(films);
         addRatingToFilm(films);
         addDirectorsToFilm(films);
