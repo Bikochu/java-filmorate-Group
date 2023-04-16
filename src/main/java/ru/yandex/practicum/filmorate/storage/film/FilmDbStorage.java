@@ -433,7 +433,7 @@ public class FilmDbStorage implements FilmStorage {
         } else if (by.size() == 1 && by.get(0).equals("director")) {
             films = jdbcTemplate.query(sql + "WHERE LOWER(NAME) LIKE ?", this::mapRowToFilm, q);
         } else {
-            throw new IllegalArgumentException("Parameter mast be \"title\" or \"director\" or \"title & director\"");
+            throw new IllegalArgumentException("Parameter must be \"title\" or \"director\" or \"title & director\"");
         }
         addGenresToFilm(films);
         addRatingToFilm(films);
