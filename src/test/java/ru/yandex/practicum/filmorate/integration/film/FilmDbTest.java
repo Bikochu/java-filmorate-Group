@@ -410,12 +410,7 @@ class FilmDbTest {
         filmStorage.addFilm(film1);
         int directorId = 1;
         String sortBy = "invalid";
-        try {
-            filmStorage.getFilmsByDirector(directorId, sortBy);
-            assert false : "Ожидалось выбрасывание исключения IllegalArgumentException.";
-        } catch (IllegalArgumentException e) {
-            assert true;
-        }
+        assertThrows(IllegalArgumentException.class, () -> filmStorage.getFilmsByDirector(directorId, sortBy));
     }
 
     @Test
