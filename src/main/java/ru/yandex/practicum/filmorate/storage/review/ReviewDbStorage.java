@@ -40,12 +40,9 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public Review updateReview(Review review) {
-//        String sql = "UPDATE REVIEWS SET USER_ID=?,FILM_ID=?,CONTENT=?,POSITIVE=? " +
         String sql = "UPDATE REVIEWS SET CONTENT=?,POSITIVE=? " +
                 "WHERE REVIEW_ID=?";
         int upd = jdbcTemplate.update(sql,
-                //review.getUserId(),
-                //review.getFilmId(),
                 review.getContent(),
                 review.getPositive(),
                 review.getReviewId()
@@ -70,8 +67,7 @@ public class ReviewDbStorage implements ReviewStorage {
         String sql = "SELECT REVIEW_ID,USER_ID,FILM_ID,CONTENT,POSITIVE,USEFUL FROM REVIEWS " +
                 "WHERE REVIEW_ID=?";
         try {
-            Review review = jdbcTemplate.queryForObject(sql, this::mapRowToReview, reviewId);
-            return review;
+            return jdbcTemplate.queryForObject(sql, this::mapRowToReview, reviewId);
         } catch (EmptyResultDataAccessException e) {
             throw new NotFoundException("Отзыв с Id " + reviewId + " не найден");
         }
@@ -81,8 +77,7 @@ public class ReviewDbStorage implements ReviewStorage {
     public List<Review> getListReview(long limit) {
         String sql = "SELECT REVIEW_ID,USER_ID,FILM_ID,CONTENT,POSITIVE,USEFUL FROM REVIEWS " +
                 "ORDER BY USEFUL DESC LIMIT ?";
-        List<Review> list = jdbcTemplate.query(sql, this::mapRowToReview, limit);
-        return list;
+        return jdbcTemplate.query(sql, this::mapRowToReview, limit);
     }
 
     @Override
@@ -90,10 +85,8 @@ public class ReviewDbStorage implements ReviewStorage {
         String sql = "SELECT REVIEW_ID,USER_ID,FILM_ID,CONTENT,POSITIVE,USEFUL FROM REVIEWS " +
                 "WHERE FILM_ID=? " +
                 "ORDER BY USEFUL DESC LIMIT ?";
-        List<Review> list = jdbcTemplate.query(sql, this::mapRowToReview, filmId, limit);
-        return list;
+        return jdbcTemplate.query(sql, this::mapRowToReview, filmId, limit);
     }
-//         String check = "SELECT COUNT(*) AS CNT FROM REVIEW_LIKES WHERE REVIEW_ID=?, USER_ID=?";
 
     private Boolean checkOpinion(long reviewId, long userId) {
         String sql = "SELECT VOTE FROM REVIEW_LIKES WHERE REVIEW_ID=? AND USER_ID=?";

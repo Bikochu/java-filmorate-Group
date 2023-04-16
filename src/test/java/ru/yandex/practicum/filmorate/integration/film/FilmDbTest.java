@@ -16,8 +16,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.annotation.DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD;
 
 @SpringBootTest
@@ -412,7 +411,7 @@ class FilmDbTest {
         int directorId = 1;
         String sortBy = "invalid";
         try {
-            List<Film> films = filmStorage.getFilmsByDirector(directorId, sortBy);
+            filmStorage.getFilmsByDirector(directorId, sortBy);
             assert false : "Ожидалось выбрасывание исключения IllegalArgumentException.";
         } catch (IllegalArgumentException e) {
             assert true;
@@ -427,11 +426,60 @@ class FilmDbTest {
         filmStorage.addFilm(film1);
         int directorId = 10;
         String sortBy = "year";
-        try {
-            List<Film> films = filmStorage.getFilmsByDirector(directorId, sortBy);
-            assert false : "Ожидалось выбрасывание исключения NotFoundException.";
-        } catch (NotFoundException e) {
-            assert true;
-        }
+        assertThrows(NotFoundException.class, () -> filmStorage.getFilmsByDirector(directorId, sortBy));
+    }
+
+    @Test
+    void searchFilmByTitle() {
+        Film film1 = new Film(1, "blablacar13", "ужасы", LocalDate.of(2022, 12, 15), 120, new Mpa(1, "G"), 0);
+        filmStorage.addFilm(film1);
+        List<Film> films = filmStorage.getFilmsByQuery("Bla", List.of("title"));
+        assertEquals(1, films.size());
+        assertEquals(film1, films.get(0));
+    }
+
+    @Test
+    void searchFilmByDirector() {
+        Film film1 = new Film(1, "blablacar13", "ужасы", LocalDate.of(2022, 12, 15), 120, new Mpa(1, "G"), 0);
+        Director director = directorStorage.addDirector(new Director(1, "Steven Spielberg"));
+        film1.getDirectors().add(director);
+        filmStorage.addFilm(film1);
+
+        List<Film> films = filmStorage.getFilmsByQuery("sTe", List.of("director"));
+        assertEquals(1, films.size());
+        assertEquals(film1, films.get(0));
+    }
+
+    @Test
+    void searchFilmByDirectorAndTitle() {
+        Director director = directorStorage.addDirector(new Director(1, "Steven Spielberg Updated"));
+        Director director2 = directorStorage.addDirector(new Director(1, "Christopher Nolan"));
+        Film film1 = new Film(1, "blablacar13", "ужасы", LocalDate.of(2022, 12, 15), 120, new Mpa(1, "G"), 0);
+        film1.getDirectors().add(director);
+        Film film2 = new Film(2, "blablacar14 Updated", "ужасы", LocalDate.of(2020, 12, 27), 120, new Mpa(1, "G"), 0);
+        film2.getDirectors().add(director2);
+        filmStorage.addFilm(film1);
+        filmStorage.addFilm(film2);
+
+        User user1 = new User(1, "", "goshan", "Григорий Петров", LocalDate.of(2000, 5, 25));
+        userStorage.addUser(user1);
+        filmStorage.addLike(film2.getId(), user1.getId());
+        film2 = filmStorage.findFilmById(film2.getId());
+
+        List<Film> films = filmStorage.getFilmsByQuery("upD", List.of("title", "director"));
+        assertEquals(2, films.size());
+        assertEquals(film2, films.get(0));
+        assertEquals(film1, films.get(1));
+
+        films = filmStorage.getFilmsByQuery("phe", List.of("title", "director"));
+        assertEquals(1, films.size());
+        assertEquals(film2, films.get(0));
+    }
+
+    @Test
+    void searchFilmsWithWrongParameters() {
+        assertThrows(IllegalArgumentException.class, () -> filmStorage.getFilmsByQuery("asd", List.of("asd")));
+        assertThrows(IllegalArgumentException.class, () -> filmStorage.getFilmsByQuery("asd", List.of("asd", "fgh")));
+        assertThrows(IllegalArgumentException.class, () -> filmStorage.getFilmsByQuery("asd", List.of("title", "director", "description")));
     }
 }
