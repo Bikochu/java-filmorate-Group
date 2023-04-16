@@ -71,4 +71,3 @@ public class FilmController {
         return filmService.getFilmsByDirector(directorId, sortBy);
     }
 }
-

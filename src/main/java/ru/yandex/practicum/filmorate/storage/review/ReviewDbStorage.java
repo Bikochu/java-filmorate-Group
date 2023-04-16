@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.review;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -15,6 +16,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+@Slf4j
 @Component("reviewDbStorage")
 @RequiredArgsConstructor
 public class ReviewDbStorage implements ReviewStorage {
@@ -40,12 +42,9 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public Review updateReview(Review review) {
-//        String sql = "UPDATE REVIEWS SET USER_ID=?,FILM_ID=?,CONTENT=?,POSITIVE=? " +
         String sql = "UPDATE REVIEWS SET CONTENT=?,POSITIVE=? " +
                 "WHERE REVIEW_ID=?";
         int upd = jdbcTemplate.update(sql,
-                //review.getUserId(),
-                //review.getFilmId(),
                 review.getContent(),
                 review.getPositive(),
                 review.getReviewId()
