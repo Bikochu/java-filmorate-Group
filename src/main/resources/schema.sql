@@ -1,26 +1,17 @@
-DROP TABLE IF EXISTS FILM CASCADE;
-DROP TABLE IF EXISTS FILM_GENRE CASCADE;
-DROP TABLE IF EXISTS GENRE CASCADE;
-DROP TABLE IF EXISTS LIKES CASCADE;
-DROP TABLE IF EXISTS RATING CASCADE;
-DROP TABLE IF EXISTS USERS CASCADE;
-DROP TABLE IF EXISTS USERS_FRIEND CASCADE;
-DROP TABLE IF EXISTS DIRECTOR CASCADE;
-DROP TABLE IF EXISTS FILM_DIRECTOR CASCADE;
-DROP TABLE IF EXISTS FILM_RATING CASCADE;
+DROP ALL OBJECTS;
 
 create table IF NOT EXISTS RATING
 (
-    RATING_ID   INTEGER not null auto_increment,
-    RATING_NAME CHARACTER VARYING(10),
+    RATING_ID INTEGER not null auto_increment,
+    RATING_NAME      CHARACTER VARYING(10),
     constraint "RATING_pk"
         primary key (RATING_ID)
 );
 
 create table IF NOT EXISTS GENRE
 (
-    GENRE_ID   INTEGER not null auto_increment,
-    GENRE_NAME CHARACTER VARYING(50),
+    GENRE_ID INTEGER not null auto_increment,
+    GENRE_NAME     CHARACTER VARYING(50),
     constraint "GENRE_pk"
         primary key (GENRE_ID)
 );
@@ -42,29 +33,28 @@ create table IF NOT EXISTS FILM_GENRE
     FILM_ID  INTEGER,
     GENRE_ID INTEGER,
     constraint "FILM_GENRE_FILM_FILM_ID_fk"
-        foreign key (FILM_ID) references FILM,
+        foreign key (FILM_ID) references PUBLIC.FILM,
     constraint "FILM_GENRE_GENRE_GENRE_ID_fk"
-        foreign key (GENRE_ID) references GENRE
+        foreign key (GENRE_ID) references PUBLIC.GENRE
 );
 
 create table IF NOT EXISTS FILM_RATING
 (
-    FILM_ID        INTEGER,
-    RATING_ID      INTEGER,
-    PRIMARY KEY (FILM_ID, RATING_ID),
+    FILM_ID  INTEGER,
+    RATING_ID INTEGER,
     constraint "FILM_RATING_FILM_FILM_ID_fk"
-        foreign key (FILM_ID) references FILM,
+        foreign key (FILM_ID) references PUBLIC.FILM,
     constraint "FILM_RATING_RATING_RATING_ID_fk"
-        foreign key (RATING_ID) references RATING
+        foreign key (RATING_ID) references PUBLIC.RATING
 );
 
 create table IF NOT EXISTS USERS
 (
-    USER_ID   INTEGER not null auto_increment,
-    EMAIL     CHARACTER VARYING(50),
-    LOGIN     CHARACTER VARYING(50),
-    USER_NAME CHARACTER VARYING(50),
-    BIRTHDAY  DATE,
+    USER_ID  INTEGER not null auto_increment,
+    EMAIL    CHARACTER VARYING(50),
+    LOGIN    CHARACTER VARYING(50),
+    USER_NAME     CHARACTER VARYING(50),
+    BIRTHDAY DATE,
     constraint "USERS_pk"
         primary key (USER_ID)
 );
@@ -74,9 +64,9 @@ create table IF NOT EXISTS LIKES
     FILM_ID INTEGER,
     USER_ID INTEGER,
     constraint "LIKES_FILM_FILM_ID_fk"
-        foreign key (FILM_ID) references FILM,
+        foreign key (FILM_ID) references PUBLIC.FILM,
     constraint "LIKES_USERS_USER_ID_fk"
-        foreign key (USER_ID) references USERS
+        foreign key (USER_ID) references PUBLIC.USERS
 );
 
 create table IF NOT EXISTS USERS_FRIEND
@@ -103,3 +93,25 @@ CREATE TABLE IF NOT EXISTS FILM_DIRECTOR
     CONSTRAINT FILM_DIRECTOR_FK_1 FOREIGN KEY (FILM_ID) REFERENCES FILM (FILM_ID) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT FILM_DIRECTOR_FK_2 FOREIGN KEY (DIRECTOR_ID) REFERENCES DIRECTOR (DIRECTOR_ID) ON DELETE CASCADE ON UPDATE CASCADE
 );
+create table IF NOT EXISTS REVIEWS
+(
+    REVIEW_ID  INTEGER not null auto_increment,
+    USER_ID    INTEGER,
+    FILM_ID    INTEGER,
+    CONTENT	   VARCHAR(1024),
+    POSITIVE   BOOLEAN,
+    USEFUL	   INTEGER,
+    constraint "REVIEWS_pk"
+        primary key (REVIEW_ID),
+    constraint "REVIEWS_USERS_USER_ID_fk"
+        foreign key (USER_ID) references PUBLIC.USERS
+);
+
+create table IF NOT EXISTS REVIEW_LIKES
+(
+    REVIEW_ID  INTEGER not null,
+    USER_ID    INTEGER not null,
+	VOTE	   BOOLEAN not null,
+    constraint "REVIEW_LIKES_REVIEWS_REVIEW_ID_fk"
+        foreign key (REVIEW_ID) references PUBLIC.REVIEWS ON DELETE CASCADE
+)
