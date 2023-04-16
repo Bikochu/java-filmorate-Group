@@ -24,7 +24,7 @@ public class LikeTrigger extends TriggerAdapter {
             ps.setString(1, "ADD");
             ps.setLong(2, userId);
             ps.setLong(3, filmId);
-            ps.executeUpdate();
+            int cnt = ps.executeUpdate();
             ps.close();
         }
         if (oldRow != null && oldRow.next()) {
@@ -36,7 +36,7 @@ public class LikeTrigger extends TriggerAdapter {
             ps.setString(1, "REMOVE");
             ps.setLong(2, userId);
             ps.setLong(3, filmId);
-            ps.executeUpdate();
+            int cnt = ps.executeUpdate();
             ps.close();
         }
     }

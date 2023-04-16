@@ -95,6 +95,7 @@ public class UserService {
     }
 
     public List<Event> getEvents(long userId) {
+        User user = findUserById(userId);
         return eventStorage.getAllEventsByUser(userId);
     }
 }
