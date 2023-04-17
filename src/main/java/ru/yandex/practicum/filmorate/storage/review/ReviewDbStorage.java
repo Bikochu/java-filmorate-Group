@@ -108,6 +108,7 @@ public class ReviewDbStorage implements ReviewStorage {
                 "VALUES (?,?,?)";
         String sqlUpd = "UPDATE REVIEWS SET USEFUL=USEFUL+? WHERE REVIEW_ID=?";
         Boolean vote = checkOpinion(review.getReviewId(), userId);
+        log.info("putOpinion {} {} {} {}", review.getReviewId(), userId, like, vote);
         if (vote == null) {
             jdbcTemplate.update(sqlIns, review.getReviewId(), userId, like);
             jdbcTemplate.update(sqlUpd, (like) ? 1 : -1, review.getReviewId());
@@ -119,6 +120,7 @@ public class ReviewDbStorage implements ReviewStorage {
         String sqlDel = "DELETE FROM REVIEW_LIKES WHERE REVIEW_ID=? AND USER_ID=?";
         String sqlUpd = "UPDATE REVIEWS SET USEFUL=USEFUL-? WHERE REVIEW_ID=?";
         Boolean vote = checkOpinion(review.getReviewId(), userId);
+        log.info("delOpinion {} {} {} {}", review.getReviewId(), userId, like, vote);
         if (vote != null) {
             if (like != vote) {
                 throw new NotFoundException("Не найден " + ((like) ? "лайк" : "дизлайк") +
