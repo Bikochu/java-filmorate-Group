@@ -76,4 +76,3 @@ public class FilmController {
         return filmService.getFilmsByQuery(query, by);
     }
 }
-

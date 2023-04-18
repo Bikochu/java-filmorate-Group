@@ -111,11 +111,11 @@ public class UserDbStorage implements UserStorage {
                     id,
                     friendId,
                     true);
-            String sqlQueryFriend = "insert into users_friend(user_id, friend_id) " +
-                    "values (?, ?)";
-            jdbcTemplate.update(sqlQueryFriend,
-                    friendId,
-                    id);
+            //String sqlQueryFriend = "insert into users_friend(user_id, friend_id) " +
+            //        "values (?, ?)";
+            //jdbcTemplate.update(sqlQueryFriend,
+            //        friendId,
+            //        id);
         }
     }
 
