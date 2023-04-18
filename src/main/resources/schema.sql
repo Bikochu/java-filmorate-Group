@@ -75,7 +75,7 @@ create table IF NOT EXISTS USERS_FRIEND
     FRIEND_ID INTEGER,
     STATUS    BOOLEAN,
     constraint "USERS_FRIEND_USERS_USER_ID_fk"
-        foreign key (USER_ID) references USERS
+        foreign key (USER_ID) references PUBLIC.USERS
 );
 
 CREATE TABLE IF NOT EXISTS DIRECTOR
@@ -93,6 +93,7 @@ CREATE TABLE IF NOT EXISTS FILM_DIRECTOR
     CONSTRAINT FILM_DIRECTOR_FK_1 FOREIGN KEY (FILM_ID) REFERENCES FILM (FILM_ID) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT FILM_DIRECTOR_FK_2 FOREIGN KEY (DIRECTOR_ID) REFERENCES DIRECTOR (DIRECTOR_ID) ON DELETE CASCADE ON UPDATE CASCADE
 );
+
 create table IF NOT EXISTS REVIEWS
 (
     REVIEW_ID  INTEGER not null auto_increment,
@@ -114,4 +115,39 @@ create table IF NOT EXISTS REVIEW_LIKES
 	VOTE	   BOOLEAN not null,
     constraint "REVIEW_LIKES_REVIEWS_REVIEW_ID_fk"
         foreign key (REVIEW_ID) references PUBLIC.REVIEWS ON DELETE CASCADE
-)
+);
+
+create table IF NOT EXISTS EVENTS
+(
+    EVENT_ID   INTEGER not null auto_increment,
+    EVENT_TYPE CHARACTER VARYING(50) NOT NULL,
+    OPERATION  CHARACTER VARYING(50) NOT NULL,
+    USER_ID    INTEGER NOT NULL,
+    ENTITY_ID  INTEGER NOT NULL,
+    EVENT_TS   TIMESTAMP NOT NULL,
+    constraint "EVENTS_pk"
+        primary key (EVENT_ID),
+    constraint "EVENTS_USERS_USER_ID_fk"
+        foreign key (USER_ID) references PUBLIC.USERS ON DELETE CASCADE
+);
+
+CREATE TRIGGER IF NOT EXISTS LIKE_ADD AFTER INSERT ON LIKES 
+	FOR EACH ROW CALL 'ru.yandex.practicum.filmorate.storage.trigger.LikeTrigger';
+
+CREATE TRIGGER IF NOT EXISTS LIKE_DEL AFTER DELETE ON LIKES 
+	FOR EACH ROW CALL 'ru.yandex.practicum.filmorate.storage.trigger.LikeTrigger';
+
+CREATE TRIGGER IF NOT EXISTS FRIEND_ADD AFTER INSERT ON USERS_FRIEND 
+	FOR EACH ROW CALL 'ru.yandex.practicum.filmorate.storage.trigger.FriendTrigger';
+
+CREATE TRIGGER IF NOT EXISTS FRIEND_DEL AFTER DELETE ON USERS_FRIEND 
+	FOR EACH ROW CALL 'ru.yandex.practicum.filmorate.storage.trigger.FriendTrigger';
+
+CREATE TRIGGER IF NOT EXISTS REVIEW_ADD AFTER INSERT ON REVIEWS
+	FOR EACH ROW CALL 'ru.yandex.practicum.filmorate.storage.trigger.ReviewTrigger';
+
+CREATE TRIGGER IF NOT EXISTS REVIEW_DEL AFTER DELETE ON REVIEWS
+	FOR EACH ROW CALL 'ru.yandex.practicum.filmorate.storage.trigger.ReviewTrigger';
+
+CREATE TRIGGER IF NOT EXISTS REVIEW_UPD AFTER UPDATE ON REVIEWS
+	FOR EACH ROW CALL 'ru.yandex.practicum.filmorate.storage.trigger.ReviewTrigger';
