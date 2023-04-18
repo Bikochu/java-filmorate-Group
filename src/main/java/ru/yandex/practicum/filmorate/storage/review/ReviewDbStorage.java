@@ -140,5 +140,4 @@ public class ReviewDbStorage implements ReviewStorage {
                 .useful(resultSet.getLong("useful"))
                 .build();
     }
-
 }
