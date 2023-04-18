@@ -377,6 +377,10 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getFilmsByDirector(int id, String sortBy) {
+        List<Film> films;
+        if (!(sortBy.equals("year") || sortBy.equals("likes"))) {
+            throw new IllegalArgumentException("Неверный параметр sortBy. Должен быть либо - 'year', либо - 'likes'.");
+        }
         String sqlQuery = "SELECT f.film_id, f.film_name, f.description, f.release_date, f.duration, f.rate, " +
                 "COUNT(l.user_id) AS COUNT " +
                 "FROM FILM AS f " +
@@ -389,16 +393,47 @@ public class FilmDbStorage implements FilmStorage {
                 "WHEN 'likes' THEN f.rate " +
                 "END " +
                 (sortBy.equals("year") ? "ASC" : "DESC");
-        List<Film> films;
-        if (sortBy.equals("year")) {
-            films = jdbcTemplate.query(sqlQuery, this::mapRowToFilm, id, sortBy);
-        } else if (sortBy.equals("likes")) {
-            films = jdbcTemplate.query(sqlQuery, this::mapRowToFilm, id, sortBy);
-        } else {
-            throw new IllegalArgumentException("Неверный параметр sortBy. Должен быть либо - 'year', либо - 'likes'.");
-        }
+        films = jdbcTemplate.query(sqlQuery, this::mapRowToFilm, id, sortBy);
+
         if (films.isEmpty()) {
             throw new NotFoundException("Режиссер с id=" + id + " не найден в базе данных.");
+        }
+        addGenresToFilm(films);
+        addRatingToFilm(films);
+        addDirectorsToFilm(films);
+        return films;
+    }
+
+    @Override
+    public List<Film> getFilmsByQuery(String query, List<String> by) {
+        String q = "%" + query.toLowerCase() + "%";
+        List<Film> films;
+        String sql = "SELECT * " +
+                "FROM (SELECT f.FILM_ID, " +
+                "FILM_NAME, " +
+                "DESCRIPTION, " +
+                "RELEASE_DATE, " +
+                "DURATION, " +
+                "RATE, " +
+                "NAME, " +
+                "COUNT(USER_ID) AS COUNT " +
+                "FROM FILM f " +
+                "LEFT JOIN FILM_DIRECTOR FD on f.FILM_ID = FD.FILM_ID " +
+                "LEFT JOIN DIRECTOR D on FD.DIRECTOR_ID = D.DIRECTOR_ID " +
+                "LEFT JOIN LIKES L on f.FILM_ID = L.FILM_ID " +
+                "GROUP BY f.FILM_ID " +
+                "ORDER BY COUNT DESC) ";
+
+        if (by.size() == 2 && (by.get(0).equals("title") || by.get(0).equals("director")) &&
+                (by.get(1).equals("title") || by.get(1).equals("director"))) {
+            films = jdbcTemplate.query(sql + "WHERE LOWER(FILM_NAME) LIKE ? " +
+                    "OR LOWER(NAME) LIKE ?", this::mapRowToFilm, q, q);
+        } else if (by.size() == 1 && by.get(0).equals("title")) {
+            films = jdbcTemplate.query(sql + "WHERE LOWER(FILM_NAME) LIKE ?", this::mapRowToFilm, q);
+        } else if (by.size() == 1 && by.get(0).equals("director")) {
+            films = jdbcTemplate.query(sql + "WHERE LOWER(NAME) LIKE ?", this::mapRowToFilm, q);
+        } else {
+            throw new IllegalArgumentException("Parameter must be \"title\" or \"director\" or \"title & director\"");
         }
         addGenresToFilm(films);
         addRatingToFilm(films);
