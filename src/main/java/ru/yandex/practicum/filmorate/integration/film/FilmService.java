@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.event.EventStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import ru.yandex.practicum.filmorate.validator.FilmValidator;
@@ -16,12 +17,16 @@ import java.util.List;
 public class FilmService {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
+    private final EventStorage eventStorage;
 
     @Autowired
     public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage,
-                       @Qualifier("userDbStorage") UserStorage userStorage) {
+                       @Qualifier("userDbStorage") UserStorage userStorage,
+                       @Qualifier("eventDbStorage") EventStorage eventStorage
+                       ) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
+        this.eventStorage = eventStorage;
     }
 
     public Film addFilm(Film film) {
@@ -53,6 +58,7 @@ public class FilmService {
             throw new NotFoundException("Фильм с Id " + filmId + " не найден или пользователь с Id " + userId + " не найден");
         }
         filmStorage.addLike(filmId, userId);
+        eventStorage.createEvent("LIKE", "ADD", userId, filmId);
     }
 
     public void deleteLike(long id, long userId) {
@@ -62,6 +68,7 @@ public class FilmService {
             throw new NotFoundException("Фильм с Id " + id + " не найден или пользователь с Id " + userId + " не найден");
         }
         filmStorage.deleteLike(id, userId);
+        eventStorage.createEvent("LIKE","REMOVE",userId,id);
     }
 
     public List<Film> getTopFilms(Integer limit, Integer genreId, Integer year) {
@@ -74,5 +81,9 @@ public class FilmService {
 
     public List<Film> getFilmsByDirector(int id, String sortBy) {
         return filmStorage.getFilmsByDirector(id, sortBy);
+    }
+
+    public List<Film> getFilmsByQuery(String query, List<String> by) {
+        return filmStorage.getFilmsByQuery(query, by);
     }
 }

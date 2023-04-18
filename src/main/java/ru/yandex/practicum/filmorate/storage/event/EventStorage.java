@@ -10,4 +10,6 @@ public interface EventStorage {
     List<Event> getAllEvents();
 
     List<Event> getAllEventsByUser(long userId);
+
+    Event createEvent(String type, String operation, long userId, long entityid);
 }

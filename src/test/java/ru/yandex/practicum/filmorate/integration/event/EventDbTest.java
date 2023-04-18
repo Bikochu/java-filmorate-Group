@@ -67,10 +67,8 @@ public class EventDbTest {
     void getAllEvents() {
         Film film = createFilm("Cool Film");
         User user = createUser("User");
-        Review review = Review.builder().content("Review")
-                .filmId(film.getId()).userId(user.getId()).positive(true).build();
         List<Event> list = eventStorage.getAllEvents();
-        filmStorage.addLike(film.getId(), user.getId());
+        Event event = eventStorage.createEvent("LIKE", "ADD", user.getId(), film.getId());
         List<Event> get = eventStorage.getAllEvents();
         assertTrue(get.size() > list.size());
         get.removeAll(list);
@@ -82,15 +80,22 @@ public class EventDbTest {
     void getAllEventsByUser() {
         Film film = createFilm("Cool Film");
         User user = createUser("User");
-        Review review = Review.builder().content("Review")
-                .filmId(film.getId()).userId(user.getId()).positive(true).build();
         List<Event> list = eventStorage.getAllEventsByUser(user.getId());
-        filmStorage.addLike(film.getId(), user.getId());
+        Event event = eventStorage.createEvent("LIKE", "ADD", user.getId(), film.getId());
         List<Event> get = eventStorage.getAllEventsByUser(user.getId());
         assertTrue(get.size() > list.size());
         get.removeAll(list);
         assertEquals(1, get.size());
         assertEquals("LIKE", get.get(0).getEventType());
+    }
+
+    @Test
+    void createEvent() {
+        Film film = createFilm("Cool Film");
+        User user = createUser("User");
+        Event event = eventStorage.createEvent("LIKE", "ADD", user.getId(), film.getId());
+        Event get = eventStorage.getEventById(event.getEventId());
+        assertEquals(event, get);
     }
 
 
