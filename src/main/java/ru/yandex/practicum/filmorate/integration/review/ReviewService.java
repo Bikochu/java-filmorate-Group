@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.event.EventStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
@@ -19,25 +20,31 @@ public class ReviewService {
     private final ReviewStorage reviewStorage;
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
+    private final EventStorage eventStorage;
 
     public Review addReview(Review review) {
         User user = userStorage.findUserById(review.getUserId());
         Film film = filmStorage.findFilmById(review.getFilmId());
         log.info("addReview " + review);
-        return reviewStorage.addReview(review);
+        Review res = reviewStorage.addReview(review);
+        eventStorage.createEvent("REVIEW", "ADD", review.getUserId(), res.getReviewId());
+        return res;
     }
 
     public Review updateReview(Review review) {
         User user = userStorage.findUserById(review.getUserId());
         Film film = filmStorage.findFilmById(review.getFilmId());
         log.info("updateReview " + review);
-        return reviewStorage.updateReview(review);
+        Review res = reviewStorage.updateReview(review);
+        eventStorage.createEvent("REVIEW", "UPDATE", res.getUserId(), res.getReviewId());
+        return res;
     }
 
     public Review deleteReview(long reviewId) {
         Review review = reviewStorage.getById(reviewId);
         log.info("deleteReview " + review);
         reviewStorage.deleteReview(reviewId);
+        eventStorage.createEvent("REVIEW", "REMOVE", review.getUserId(), reviewId);
         return review;
     }
 

@@ -58,6 +58,7 @@ public class UserService {
             throw new NotFoundException("Пользователь с Id " + id + " не найден или друг с Id " + friendId + " не найден");
         }
         userStorage.addFriend(id, friendId);
+        eventStorage.createEvent("FRIEND", "ADD", id, friendId);
     }
 
     public void deleteFriend(long id, long friendId) {
@@ -67,6 +68,7 @@ public class UserService {
             throw new NotFoundException("Пользователь с Id " + id + " не найден или друг с Id " + friendId + " не найден");
         }
         userStorage.deleteFriend(id, friendId);
+        eventStorage.createEvent("FRIEND", "REMOVE", id, friendId);
     }
 
     public List<User> getListFriendsUser(long id) {

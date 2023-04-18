@@ -131,23 +131,3 @@ create table IF NOT EXISTS EVENTS
         foreign key (USER_ID) references PUBLIC.USERS ON DELETE CASCADE
 );
 
-CREATE TRIGGER IF NOT EXISTS LIKE_ADD AFTER INSERT ON LIKES 
-	FOR EACH ROW CALL 'ru.yandex.practicum.filmorate.storage.trigger.LikeTrigger';
-
-CREATE TRIGGER IF NOT EXISTS LIKE_DEL AFTER DELETE ON LIKES 
-	FOR EACH ROW CALL 'ru.yandex.practicum.filmorate.storage.trigger.LikeTrigger';
-
-CREATE TRIGGER IF NOT EXISTS FRIEND_ADD AFTER INSERT ON USERS_FRIEND 
-	FOR EACH ROW CALL 'ru.yandex.practicum.filmorate.storage.trigger.FriendTrigger';
-
-CREATE TRIGGER IF NOT EXISTS FRIEND_DEL AFTER DELETE ON USERS_FRIEND 
-	FOR EACH ROW CALL 'ru.yandex.practicum.filmorate.storage.trigger.FriendTrigger';
-
-CREATE TRIGGER IF NOT EXISTS REVIEW_ADD AFTER INSERT ON REVIEWS
-	FOR EACH ROW CALL 'ru.yandex.practicum.filmorate.storage.trigger.ReviewTrigger';
-
-CREATE TRIGGER IF NOT EXISTS REVIEW_DEL AFTER DELETE ON REVIEWS
-	FOR EACH ROW CALL 'ru.yandex.practicum.filmorate.storage.trigger.ReviewTrigger';
-
-CREATE TRIGGER IF NOT EXISTS REVIEW_UPD AFTER UPDATE ON REVIEWS
-	FOR EACH ROW CALL 'ru.yandex.practicum.filmorate.storage.trigger.ReviewTrigger';
