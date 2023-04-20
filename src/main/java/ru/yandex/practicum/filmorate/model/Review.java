@@ -1,25 +1,36 @@
 package ru.yandex.practicum.filmorate.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import javax.validation.constraints.NotNull;
+import java.util.Objects;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@EqualsAndHashCode
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Review {
-    private Long reviewId;
-    private @NotNull Long userId;
-    private @NotNull Long filmId;
-    private @NotNull String content;
+    Long reviewId;
+    @NotNull Long userId;
+    @NotNull Long filmId;
+    @NotNull String content;
     @JsonProperty("isPositive")
-    private @NotNull Boolean positive;
-    private long useful;
+    @NotNull Boolean positive;
+    long useful;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Review review = (Review) o;
+        return useful == review.useful && Objects.equals(reviewId, review.reviewId) && Objects.equals(userId, review.userId) && Objects.equals(filmId, review.filmId) && Objects.equals(content, review.content) && Objects.equals(positive, review.positive);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(reviewId, userId, filmId, content, positive, useful);
+    }
 }

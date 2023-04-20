@@ -1,5 +1,7 @@
 package ru.yandex.practicum.filmorate.integration.user;
 
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -15,10 +17,11 @@ import ru.yandex.practicum.filmorate.validator.UserValidator;
 import java.util.*;
 
 @Service
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserService {
-    private final FilmStorage filmStorage;
-    private final UserStorage userStorage;
-    private final EventStorage eventStorage;
+    FilmStorage filmStorage;
+    UserStorage userStorage;
+    EventStorage eventStorage;
 
     @Autowired
     public UserService(@Qualifier("filmDbStorage") FilmStorage filmStorage,
@@ -55,7 +58,7 @@ public class UserService {
         User user = userStorage.findUserById(id);
         User friend = userStorage.findUserById(friendId);
         if (user == null || friend == null) {
-            throw new NotFoundException("Пользователь с Id " + id + " не найден или друг с Id " + friendId + " не найден");
+            throw new NotFoundException(String.format("Пользователь с Id %d не найден или друг с Id %d не найден", id, friendId));
         }
         userStorage.addFriend(id, friendId);
         eventStorage.createEvent("FRIEND", "ADD", id, friendId);
@@ -65,7 +68,7 @@ public class UserService {
         User user = userStorage.findUserById(id);
         User friend = userStorage.findUserById(friendId);
         if (user == null || friend == null) {
-            throw new NotFoundException("Пользователь с Id " + id + " не найден или друг с Id " + friendId + " не найден");
+            throw new NotFoundException(String.format("Пользователь с Id %d не найден или друг с Id %d не найден", id, friendId));
         }
         userStorage.deleteFriend(id, friendId);
         eventStorage.createEvent("FRIEND", "REMOVE", id, friendId);
@@ -74,7 +77,7 @@ public class UserService {
     public List<User> getListFriendsUser(long id) {
         User user = userStorage.findUserById(id);
         if (user == null) {
-            throw new NotFoundException("Пользователь с Id " + id + " не найден");
+            throw new NotFoundException(String.format("Пользователь с Id %d не найден", id));
         }
         return userStorage.getListFriendsUser(id);
     }
@@ -83,7 +86,7 @@ public class UserService {
         User user = userStorage.findUserById(id);
         User friend = userStorage.findUserById(friendId);
         if (user == null || friend == null) {
-            throw new NotFoundException("Пользователь с Id " + id + " не найден или друг с Id " + friendId + " не найден");
+            throw new NotFoundException(String.format("Пользователь с Id %d не найден или друг с Id %d не найден", id, friendId));
         }
         List<User> friendsUser = userStorage.getListFriendsUser(id);
         List<User> friendsFriend = userStorage.getListFriendsUser(friendId);

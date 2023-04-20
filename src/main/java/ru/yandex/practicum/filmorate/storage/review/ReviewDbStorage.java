@@ -50,7 +50,7 @@ public class ReviewDbStorage implements ReviewStorage {
                 review.getReviewId()
         );
         if (upd == 0) {
-            throw new NotFoundException("Отзыв с Id " + review.getReviewId() + " не найден");
+            throw new NotFoundException(String.format("Отзыв с Id %d не найден", review.getReviewId()));
         }
         return getById(review.getReviewId());
     }
@@ -60,7 +60,7 @@ public class ReviewDbStorage implements ReviewStorage {
         String sql = "DELETE FROM REVIEWS WHERE REVIEW_ID=?";
         int upd = jdbcTemplate.update(sql, reviewId);
         if (upd == 0) {
-            throw new NotFoundException("Отзыв с Id " + reviewId + " не найден");
+            throw new NotFoundException(String.format("Отзыв с Id %d не найден", reviewId));
         }
     }
 
@@ -71,7 +71,7 @@ public class ReviewDbStorage implements ReviewStorage {
         try {
             return jdbcTemplate.queryForObject(sql, this::mapRowToReview, reviewId);
         } catch (EmptyResultDataAccessException e) {
-            throw new NotFoundException("Отзыв с Id " + reviewId + " не найден");
+            throw new NotFoundException(String.format("Отзыв с Id %d не найден", reviewId));
         }
     }
 
@@ -119,8 +119,8 @@ public class ReviewDbStorage implements ReviewStorage {
         log.info("delOpinion {} {} {} {}", review.getReviewId(), userId, like, vote);
         if (vote != null) {
             if (like != vote) {
-                throw new NotFoundException("Не найден " + ((like) ? "лайк" : "дизлайк") +
-                        " отзыва " + review.getReviewId() + " пользователя " + userId);
+                throw new NotFoundException(String.format("Не найден %s отзыва %d пользователя %d",
+                        (like ? "лайк" : "дизлайк"), review.getReviewId(), userId));
             }
             int upd = jdbcTemplate.update(sqlDel, review.getReviewId(), userId);
             if (upd > 0) {

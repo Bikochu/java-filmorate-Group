@@ -26,7 +26,7 @@ public class MpaDbStorage implements MpaStorage {
             String sqlQuery = "select rating_id, rating_name from rating where rating_id = ?";
             return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToMpa, mpaId);
         } catch (EmptyResultDataAccessException e) {
-            throw new NotFoundException("Рейтинг с Id " + mpaId + " не найден");
+            throw new NotFoundException(String.format("Рейтинг с Id %d не найден", mpaId));
         }
     }
 

@@ -1,6 +1,8 @@
 package ru.yandex.practicum.filmorate.integration.review;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -16,11 +18,12 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ReviewService {
-    private final ReviewStorage reviewStorage;
-    private final FilmStorage filmStorage;
-    private final UserStorage userStorage;
-    private final EventStorage eventStorage;
+    ReviewStorage reviewStorage;
+    FilmStorage filmStorage;
+    UserStorage userStorage;
+    EventStorage eventStorage;
 
     public Review addReview(Review review) {
         User user = userStorage.findUserById(review.getUserId());

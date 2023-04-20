@@ -27,7 +27,7 @@ public class GenreDbStorage implements GenreStorage {
             String sqlQuery = "select genre_id, genre_name from genre where genre_id = ?";
             return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToGenre, genreId);
         } catch (EmptyResultDataAccessException e) {
-            throw new NotFoundException("Жанр с Id " + genreId + " не найден");
+            throw new NotFoundException(String.format("Жанр с Id %d не найден", genreId));
         }
     }
 

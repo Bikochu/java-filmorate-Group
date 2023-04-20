@@ -27,7 +27,7 @@ public class EventDbStorage implements EventStorage {
                     " FROM EVENTS WHERE EVENT_ID = ?";
             return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToEvent, eventId);
         } catch (EmptyResultDataAccessException e) {
-            throw new NotFoundException("Событие с Id " + eventId + " не найдено");
+            throw new NotFoundException(String.format("Событие с Id %d не найдено", eventId));
         }
     }
 

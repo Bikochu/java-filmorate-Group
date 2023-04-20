@@ -396,7 +396,7 @@ public class FilmDbStorage implements FilmStorage {
         films = jdbcTemplate.query(sqlQuery, this::mapRowToFilm, id, sortBy);
 
         if (films.isEmpty()) {
-            throw new NotFoundException("Режиссер с id=" + id + " не найден в базе данных.");
+            throw new NotFoundException(String.format("Режиссер с Id %d не найден в базе данных.", id));
         }
         addGenresToFilm(films);
         addRatingToFilm(films);

@@ -1,5 +1,7 @@
 package ru.yandex.practicum.filmorate.integration.film;
 
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -14,10 +16,11 @@ import ru.yandex.practicum.filmorate.validator.FilmValidator;
 import java.util.List;
 
 @Service
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class FilmService {
-    private final FilmStorage filmStorage;
-    private final UserStorage userStorage;
-    private final EventStorage eventStorage;
+    FilmStorage filmStorage;
+    UserStorage userStorage;
+    EventStorage eventStorage;
 
     @Autowired
     public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage,
@@ -55,7 +58,7 @@ public class FilmService {
         Film film = filmStorage.findFilmById(filmId);
         User user = userStorage.findUserById(userId);
         if (film == null || user == null) {
-            throw new NotFoundException("Фильм с Id " + filmId + " не найден или пользователь с Id " + userId + " не найден");
+            throw new NotFoundException(String.format("Фильм с Id %d не найден или пользователь с Id %d не найден", filmId, userId));
         }
         filmStorage.addLike(filmId, userId);
         eventStorage.createEvent("LIKE", "ADD", userId, filmId);
@@ -65,7 +68,7 @@ public class FilmService {
         Film film = filmStorage.findFilmById(id);
         User user = userStorage.findUserById(userId);
         if (film == null || user == null) {
-            throw new NotFoundException("Фильм с Id " + id + " не найден или пользователь с Id " + userId + " не найден");
+            throw new NotFoundException(String.format("Фильм с Id %d не найден или пользователь с Id %d не найден", id, userId));
         }
         filmStorage.deleteLike(id, userId);
         eventStorage.createEvent("LIKE","REMOVE",userId,id);

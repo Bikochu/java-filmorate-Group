@@ -53,7 +53,7 @@ public class UserDbStorage implements UserStorage {
                 user.getBirthday(),
                 user.getId());
         if (upd == 0) {
-            throw new NotFoundException("Пользователь с Id " + user.getId() + " не найден");
+            throw new NotFoundException(String.format("Пользователь с Id %d не найден", user.getId()));
         }
         return user;
     }
@@ -67,7 +67,7 @@ public class UserDbStorage implements UserStorage {
         String sqlQuery = "delete from users where user_id = ?";
         int upd = jdbcTemplate.update(sqlQuery, id);
         if (upd == 0) {
-            throw new NotFoundException("Пользователь с Id " + id + " не найден");
+            throw new NotFoundException(String.format("Пользователь с Id %d не найден", id));
         }
     }
 
@@ -81,7 +81,7 @@ public class UserDbStorage implements UserStorage {
             user.getFriends().addAll(friends.stream().map(User::getId).collect(Collectors.toSet()));
             return user;
         } catch (EmptyResultDataAccessException e) {
-            throw new NotFoundException("Пользователь с Id " + id + " не найден");
+            throw new NotFoundException(String.format("Пользователь с Id %d не найден", id));
         }
     }
 

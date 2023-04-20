@@ -13,6 +13,6 @@ import javax.validation.constraints.NotBlank;
 @Builder
 public class Director {
     private int id;
-    @NotBlank(message = "The name should not be empty")
+    @NotBlank(message = "The name should not be blank.")
     private String name;
 }
