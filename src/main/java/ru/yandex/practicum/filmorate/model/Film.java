@@ -1,24 +1,32 @@
 package ru.yandex.practicum.filmorate.model;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.experimental.FieldDefaults;
 
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
 @Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Film {
-    private long id;
-    private String name;
+    long id;
+    String name;
     @Size(max = 200)
-    private String description;
-    private LocalDate releaseDate;
-    private int duration;
-    private final Set<Long> likes = new HashSet<>();
-    private final List<Genre> genres = new ArrayList<>();
-    private Mpa mpa;
+    String description;
+    LocalDate releaseDate;
+    int duration;
+    final Set<Long> likes = new HashSet<>();
+    final List<Genre> genres = new ArrayList<>();
+    final List<Director> directors = new ArrayList<>();
+    Mpa mpa;
+    int rate;
 }
